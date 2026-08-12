@@ -1,0 +1,4152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>ZEVANI — Personalized AI Companionship</title>
+
+<style>
+
+/* =========================================================
+   ZEVANI
+   PERSONALIZED AI COMPANIONSHIP
+========================================================= */
+
+:root{
+
+    --navy:#101a2d;
+    --navy2:#1c2940;
+
+    --cream:#f7f4ed;
+    --warm:#eee8dc;
+
+    --gold:#c7a86b;
+    --gold2:#e2d1a5;
+
+    --text:#202633;
+    --muted:#707887;
+
+    --white:#ffffff;
+
+    --border:#e4dfd5;
+}
+
+
+*{
+
+    box-sizing:border-box;
+
+    margin:0;
+
+    padding:0;
+
+}
+
+
+html{
+
+    scroll-behavior:smooth;
+
+}
+
+
+body{
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    background:var(--cream);
+
+    color:var(--text);
+
+}
+
+
+button,
+input,
+select{
+
+    font-family:inherit;
+
+}
+
+
+button{
+
+    cursor:pointer;
+
+}
+
+
+.hidden{
+
+    display:none !important;
+
+}
+
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+nav{
+
+    position:fixed;
+
+    top:0;
+
+    left:0;
+
+    right:0;
+
+    height:76px;
+
+    padding:
+        0 7%;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    background:
+        rgba(247,244,237,.96);
+
+    backdrop-filter:
+        blur(14px);
+
+    border-bottom:
+        1px solid rgba(0,0,0,.05);
+
+    z-index:1000;
+
+}
+
+
+.logo{
+
+    font-size:23px;
+
+    font-weight:800;
+
+    letter-spacing:5px;
+
+    color:var(--navy);
+
+}
+
+
+.logo span{
+
+    color:var(--gold);
+
+}
+
+
+.nav-links{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:24px;
+
+    font-size:14px;
+
+}
+
+
+.nav-links a{
+
+    color:#59616e;
+
+    text-decoration:none;
+
+}
+
+
+.nav-cta{
+
+    background:var(--navy);
+
+    color:white !important;
+
+    padding:
+        11px 22px;
+
+    border-radius:30px;
+
+}
+
+
+#languageSelector{
+
+    border:
+        1px solid #ddd7ca;
+
+    background:white;
+
+    color:var(--text);
+
+    padding:
+        9px 12px;
+
+    border-radius:20px;
+
+    font-size:13px;
+
+    cursor:pointer;
+
+    outline:none;
+
+}
+
+
+/* =========================================================
+   HERO
+========================================================= */
+
+.hero{
+
+    min-height:100vh;
+
+    padding:
+        150px 7% 90px;
+
+    display:grid;
+
+    grid-template-columns:
+        1.05fr .95fr;
+
+    gap:70px;
+
+    align-items:center;
+
+}
+
+
+.eyebrow{
+
+    color:var(--gold);
+
+    text-transform:uppercase;
+
+    letter-spacing:4px;
+
+    font-size:11px;
+
+    font-weight:bold;
+
+    margin-bottom:20px;
+
+}
+
+
+.hero h1{
+
+    font-family:Georgia,serif;
+
+    font-weight:normal;
+
+    font-size:
+        clamp(52px,6vw,82px);
+
+    line-height:1.02;
+
+    color:var(--navy);
+
+    margin-bottom:28px;
+
+}
+
+
+.hero h1 em{
+
+    font-style:normal;
+
+    color:#9a7d4b;
+
+}
+
+
+.hero p{
+
+    max-width:600px;
+
+    font-size:19px;
+
+    line-height:1.7;
+
+    color:var(--muted);
+
+    margin-bottom:35px;
+
+}
+
+
+.buttons{
+
+    display:flex;
+
+    gap:14px;
+
+    flex-wrap:wrap;
+
+}
+
+
+.primary{
+
+    border:none;
+
+    background:var(--navy);
+
+    color:white;
+
+    padding:
+        16px 28px;
+
+    border-radius:35px;
+
+    font-weight:bold;
+
+    transition:.2s;
+
+}
+
+
+.primary:hover{
+
+    transform:translateY(-3px);
+
+    box-shadow:
+        0 12px 25px
+        rgba(16,26,45,.2);
+
+}
+
+
+.secondary{
+
+    background:transparent;
+
+    border:
+        1px solid #c9c3b6;
+
+    color:var(--navy);
+
+    padding:
+        15px 28px;
+
+    border-radius:35px;
+
+    font-weight:bold;
+
+}
+
+
+/* =========================================================
+   PHONE PREVIEW
+========================================================= */
+
+.phone{
+
+    width:305px;
+
+    height:610px;
+
+    background:#0c1422;
+
+    border-radius:40px;
+
+    padding:10px;
+
+    margin:auto;
+
+    box-shadow:
+        0 35px 80px
+        rgba(16,26,45,.28);
+
+}
+
+
+.phone-screen{
+
+    height:100%;
+
+    border-radius:32px;
+
+    overflow:hidden;
+
+    background:var(--cream);
+
+}
+
+
+.phone-header{
+
+    height:90px;
+
+    background:white;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+    padding:16px;
+
+}
+
+
+.avatar{
+
+    width:44px;
+
+    height:44px;
+
+    border-radius:50%;
+
+    background:
+        linear-gradient(
+            135deg,
+            #c7a86b,
+            #eadbb7
+        );
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    color:white;
+
+    font-weight:bold;
+
+}
+
+
+.phone-name{
+
+    color:var(--navy);
+
+    font-weight:bold;
+
+}
+
+
+.status{
+
+    color:#4f9561;
+
+    font-size:10px;
+
+}
+
+
+.chat{
+
+    padding:20px 15px;
+
+}
+
+
+.bubble{
+
+    max-width:83%;
+
+    padding:
+        12px 14px;
+
+    border-radius:18px;
+
+    font-size:12px;
+
+    margin-bottom:12px;
+
+}
+
+
+.him{
+
+    background:white;
+
+}
+
+
+.me{
+
+    margin-left:auto;
+
+    background:var(--navy);
+
+    color:white;
+
+}
+
+
+.memory{
+
+    background:#ece5d8;
+
+    padding:13px;
+
+    border-radius:13px;
+
+    margin-top:30px;
+
+    font-size:10px;
+
+    color:#6a6253;
+
+}
+
+
+/* =========================================================
+   GENERAL SECTIONS
+========================================================= */
+
+.section{
+
+    padding:
+        110px 7%;
+
+}
+
+
+.section-header{
+
+    max-width:700px;
+
+    margin:
+        0 auto 55px;
+
+    text-align:center;
+
+}
+
+
+.label{
+
+    color:var(--gold);
+
+    text-transform:uppercase;
+
+    letter-spacing:3px;
+
+    font-size:11px;
+
+    font-weight:bold;
+
+    margin-bottom:12px;
+
+}
+
+
+.section h2{
+
+    font-family:Georgia,serif;
+
+    font-size:48px;
+
+    font-weight:normal;
+
+    line-height:1.1;
+
+    color:var(--navy);
+
+    margin-bottom:18px;
+
+}
+
+
+.section-header p{
+
+    color:var(--muted);
+
+    line-height:1.7;
+
+}
+
+
+/* =========================================================
+   COMPANIONS
+========================================================= */
+
+.companions{
+
+    background:white;
+
+}
+
+
+.companion-grid{
+
+    max-width:1200px;
+
+    margin:auto;
+
+    display:grid;
+
+    grid-template-columns:
+        repeat(4,1fr);
+
+    gap:18px;
+
+}
+
+
+.companion{
+
+    padding:
+        30px 24px;
+
+    border:
+        1px solid var(--border);
+
+    border-radius:22px;
+
+    background:white;
+
+    transition:.25s;
+
+}
+
+
+.companion:hover{
+
+    transform:translateY(-7px);
+
+    box-shadow:
+        0 20px 45px
+        rgba(0,0,0,.08);
+
+}
+
+
+.icon{
+
+    width:58px;
+
+    height:58px;
+
+    border-radius:18px;
+
+    background:var(--warm);
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    font-size:27px;
+
+    margin-bottom:22px;
+
+}
+
+
+.companion h3{
+
+    color:var(--navy);
+
+    margin-bottom:8px;
+
+}
+
+
+.companion p{
+
+    color:var(--muted);
+
+    font-size:13px;
+
+    margin-bottom:20px;
+
+    line-height:1.6;
+
+}
+
+
+.small-button{
+
+    border:
+        1px solid #ddd7ca;
+
+    background:white;
+
+    color:var(--navy);
+
+    padding:
+        9px 15px;
+
+    border-radius:25px;
+
+    font-size:12px;
+
+    font-weight:bold;
+
+}
+
+
+/* =========================================================
+   BUILDER
+========================================================= */
+
+.builder-section{
+
+    min-height:100vh;
+
+    padding:
+        120px 7% 80px;
+
+    background:
+        radial-gradient(
+            circle at 70% 20%,
+            rgba(199,168,107,.14),
+            transparent 30%
+        ),
+        var(--cream);
+
+}
+
+
+.builder-container{
+
+    max-width:850px;
+
+    margin:auto;
+
+}
+
+
+.builder-top{
+
+    text-align:center;
+
+    margin-bottom:40px;
+
+}
+
+
+.builder-top h2{
+
+    font-family:Georgia,serif;
+
+    font-size:52px;
+
+    font-weight:normal;
+
+    color:var(--navy);
+
+    margin-bottom:12px;
+
+}
+
+
+.builder-top p{
+
+    color:var(--muted);
+
+}
+
+
+.progress{
+
+    display:flex;
+
+    justify-content:center;
+
+    gap:8px;
+
+    margin-bottom:40px;
+
+}
+
+
+.progress-dot{
+
+    width:45px;
+
+    height:5px;
+
+    border-radius:10px;
+
+    background:#ddd7ca;
+
+}
+
+
+.progress-dot.active{
+
+    background:var(--gold);
+
+}
+
+
+.builder-card{
+
+    background:white;
+
+    border:
+        1px solid var(--border);
+
+    border-radius:28px;
+
+    padding:45px;
+
+    box-shadow:
+        0 25px 60px
+        rgba(0,0,0,.07);
+
+}
+
+
+.step{
+
+    display:none;
+
+}
+
+
+.step.active{
+
+    display:block;
+
+}
+
+
+.step h3{
+
+    font-family:Georgia,serif;
+
+    font-size:32px;
+
+    font-weight:normal;
+
+    color:var(--navy);
+
+    margin-bottom:10px;
+
+}
+
+
+.step-subtitle{
+
+    color:var(--muted);
+
+    margin-bottom:30px;
+
+}
+
+
+/* =========================================================
+   TYPE CHOICES
+========================================================= */
+
+.type-grid{
+
+    display:grid;
+
+    grid-template-columns:
+        repeat(2,1fr);
+
+    gap:14px;
+
+}
+
+
+.type-choice{
+
+    border:
+        1px solid var(--border);
+
+    background:white;
+
+    padding:20px;
+
+    border-radius:18px;
+
+    text-align:left;
+
+    transition:.2s;
+
+}
+
+
+.type-choice:hover{
+
+    border-color:var(--gold);
+
+    transform:translateY(-2px);
+
+}
+
+
+.type-choice.selected{
+
+    border:
+        2px solid var(--gold);
+
+    background:#fbf8f0;
+
+}
+
+
+.type-icon{
+
+    font-size:25px;
+
+    margin-bottom:8px;
+
+}
+
+
+.type-name{
+
+    font-weight:bold;
+
+    color:var(--navy);
+
+    margin-bottom:4px;
+
+}
+
+
+.type-description{
+
+    font-size:12px;
+
+    color:var(--muted);
+
+}
+
+
+/* =========================================================
+   INPUT
+========================================================= */
+
+.name-input{
+
+    width:100%;
+
+    padding:18px;
+
+    border:
+        1px solid var(--border);
+
+    border-radius:15px;
+
+    outline:none;
+
+    font-size:17px;
+
+    margin-bottom:15px;
+
+}
+
+
+.name-input:focus{
+
+    border-color:var(--gold);
+
+}
+
+
+/* =========================================================
+   SLIDERS
+========================================================= */
+
+.slider-row{
+
+    margin-bottom:25px;
+
+}
+
+
+.slider-label{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    margin-bottom:7px;
+
+    font-size:14px;
+
+    font-weight:bold;
+
+}
+
+
+.slider-label span{
+
+    color:var(--muted);
+
+    font-weight:normal;
+
+}
+
+
+input[type=range]{
+
+    width:100%;
+
+}
+
+
+/* =========================================================
+   INTERESTS
+========================================================= */
+
+.interest-grid{
+
+    display:flex;
+
+    flex-wrap:wrap;
+
+    gap:10px;
+
+}
+
+
+.interest{
+
+    border:
+        1px solid var(--border);
+
+    background:white;
+
+    padding:
+        10px 16px;
+
+    border-radius:25px;
+
+    font-size:13px;
+
+}
+
+
+.interest.selected{
+
+    background:var(--navy);
+
+    color:white;
+
+    border-color:var(--navy);
+
+}
+
+
+/* =========================================================
+   PREFERENCES
+========================================================= */
+
+.preference{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+    padding:
+        15px 0;
+
+    border-bottom:
+        1px solid #eee;
+
+}
+
+
+.preference input{
+
+    width:18px;
+
+    height:18px;
+
+}
+
+
+/* =========================================================
+   BUILDER BUTTONS
+========================================================= */
+
+.builder-buttons{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    margin-top:35px;
+
+    gap:12px;
+
+}
+
+
+.back-button{
+
+    border:
+        1px solid var(--border);
+
+    background:white;
+
+    color:var(--navy);
+
+    padding:
+        14px 24px;
+
+    border-radius:30px;
+
+    font-weight:bold;
+
+}
+
+
+/* =========================================================
+   PROFILE
+========================================================= */
+
+.profile-section{
+
+    min-height:100vh;
+
+    padding:
+        120px 7% 80px;
+
+    background:var(--navy);
+
+    color:white;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+}
+
+
+.profile-card{
+
+    max-width:620px;
+
+    width:100%;
+
+    background:white;
+
+    color:var(--text);
+
+    border-radius:30px;
+
+    padding:45px;
+
+    text-align:center;
+
+    box-shadow:
+        0 30px 80px
+        rgba(0,0,0,.3);
+
+}
+
+
+.profile-avatar{
+
+    width:100px;
+
+    height:100px;
+
+    margin:
+        0 auto 20px;
+
+    border-radius:50%;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    color:white;
+
+    font-size:38px;
+
+    font-weight:bold;
+
+    background:
+        linear-gradient(
+            135deg,
+            #c7a86b,
+            #eadbb7
+        );
+
+}
+
+
+.profile-card h2{
+
+    font-family:Georgia,serif;
+
+    font-size:42px;
+
+    font-weight:normal;
+
+    color:var(--navy);
+
+    margin-bottom:8px;
+
+}
+
+
+.profile-type{
+
+    color:var(--gold);
+
+    text-transform:uppercase;
+
+    letter-spacing:2px;
+
+    font-size:11px;
+
+    font-weight:bold;
+
+    margin-bottom:20px;
+
+}
+
+
+.profile-description{
+
+    color:var(--muted);
+
+    margin-bottom:25px;
+
+}
+
+
+.tags{
+
+    display:flex;
+
+    justify-content:center;
+
+    gap:8px;
+
+    flex-wrap:wrap;
+
+    margin-bottom:30px;
+
+}
+
+
+.tag{
+
+    background:var(--warm);
+
+    color:var(--navy);
+
+    padding:
+        7px 12px;
+
+    border-radius:20px;
+
+    font-size:11px;
+
+}
+
+
+/* =========================================================
+   CHAT
+========================================================= */
+
+.chat-section{
+
+    min-height:100vh;
+
+    padding:
+        110px 20px 30px;
+
+    background:#e9e5dc;
+
+}
+
+
+.chat-container{
+
+    max-width:650px;
+
+    height:
+        calc(100vh - 140px);
+
+    min-height:600px;
+
+    margin:auto;
+
+    background:var(--cream);
+
+    border-radius:30px;
+
+    overflow:hidden;
+
+    display:flex;
+
+    flex-direction:column;
+
+    box-shadow:
+        0 25px 70px
+        rgba(0,0,0,.15);
+
+}
+
+
+.chat-top{
+
+    background:white;
+
+    padding:
+        17px 20px;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+    border-bottom:
+        1px solid #eee;
+
+}
+
+
+.chat-avatar{
+
+    width:43px;
+
+    height:43px;
+
+    border-radius:50%;
+
+    background:
+        linear-gradient(
+            135deg,
+            #c7a86b,
+            #eadbb7
+        );
+
+    color:white;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    font-weight:bold;
+
+}
+
+
+.chat-name{
+
+    font-weight:bold;
+
+    color:var(--navy);
+
+}
+
+
+.chat-status{
+
+    font-size:10px;
+
+    color:#4f9561;
+
+}
+
+
+.chat-messages{
+
+    flex:1;
+
+    overflow-y:auto;
+
+    padding:25px;
+
+}
+
+
+.chat-message{
+
+    max-width:78%;
+
+    padding:
+        13px 16px;
+
+    border-radius:18px;
+
+    margin-bottom:13px;
+
+    font-size:14px;
+
+    line-height:1.5;
+
+}
+
+
+.ai-message{
+
+    background:white;
+
+}
+
+
+.user-message{
+
+    background:var(--navy);
+
+    color:white;
+
+    margin-left:auto;
+
+}
+
+
+.chat-input-area{
+
+    background:white;
+
+    padding:12px;
+
+    display:flex;
+
+    gap:8px;
+
+}
+
+
+.chat-input{
+
+    flex:1;
+
+    border:
+        1px solid var(--border);
+
+    border-radius:25px;
+
+    padding:
+        13px 16px;
+
+    outline:none;
+
+}
+
+
+.send-button{
+
+    width:48px;
+
+    border:none;
+
+    border-radius:50%;
+
+    background:var(--navy);
+
+    color:white;
+
+    font-size:18px;
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media(max-width:900px){
+
+    .hero{
+
+        grid-template-columns:1fr;
+
+        text-align:center;
+
+    }
+
+
+    .hero p{
+
+        margin-left:auto;
+
+        margin-right:auto;
+
+    }
+
+
+    .buttons{
+
+        justify-content:center;
+
+    }
+
+
+    .companion-grid{
+
+        grid-template-columns:
+            repeat(2,1fr);
+
+    }
+
+}
+
+
+@media(max-width:600px){
+
+    .nav-links{
+
+        gap:8px;
+
+    }
+
+
+    .nav-links a{
+
+        display:none;
+
+    }
+
+
+    #languageSelector{
+
+        font-size:11px;
+
+        padding:
+            7px 9px;
+
+    }
+
+
+    .hero{
+
+        padding-top:120px;
+
+    }
+
+
+    .hero h1{
+
+        font-size:50px;
+
+    }
+
+
+    .section{
+
+        padding:
+            80px 6%;
+
+    }
+
+
+    .section h2{
+
+        font-size:38px;
+
+    }
+
+
+    .companion-grid{
+
+        grid-template-columns:1fr;
+
+    }
+
+
+    .builder-card{
+
+        padding:25px;
+
+    }
+
+
+    .builder-top h2{
+
+        font-size:40px;
+
+    }
+
+
+    .type-grid{
+
+        grid-template-columns:1fr;
+
+    }
+
+
+    .profile-card{
+
+        padding:
+            30px 20px;
+
+    }
+
+
+    .phone{
+
+        transform:
+            scale(.9);
+
+    }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<!-- =========================================================
+     NAVIGATION
+========================================================= -->
+
+<nav>
+
+    <div class="logo">
+
+        ZEVANI<span>•</span>
+
+    </div>
+
+
+    <div class="nav-links">
+
+        <select
+            id="languageSelector"
+            onchange="changeLanguage()"
+        >
+
+            <option value="en">
+                🇬🇧 English
+            </option>
+
+            <option value="fr">
+                🇫🇷 Français
+            </option>
+
+            <option value="es">
+                🇪🇸 Español
+            </option>
+
+        </select>
+
+
+        <a
+            href="#"
+            onclick="showHome();return false;"
+        >
+            Home
+        </a>
+
+
+        <a
+            href="#companions"
+            onclick="showHome()"
+        >
+            Companions
+        </a>
+
+
+        <a
+            href="#"
+            onclick="startBuilder();return false;"
+        >
+            Create Yours
+        </a>
+
+    </div>
+
+</nav>
+
+
+<!-- =========================================================
+     HOME PAGE
+========================================================= -->
+
+<div id="homePage">
+
+
+<section class="hero">
+
+
+    <div>
+
+
+        <div class="eyebrow">
+
+            PERSONALIZED AI COMPANIONSHIP
+
+        </div>
+
+
+        <h1>
+
+            Meet someone
+
+            <br>
+
+            made <em>for you.</em>
+
+        </h1>
+
+
+        <p>
+
+            Choose a companion, shape their personality,
+            and create a connection that becomes uniquely yours.
+
+        </p>
+
+
+        <div class="buttons">
+
+
+            <button
+                class="primary"
+                onclick="document.getElementById('companions').scrollIntoView({behavior:'smooth'})"
+            >
+
+                Explore Companions
+
+            </button>
+
+
+            <button
+                class="secondary"
+                onclick="startBuilder()"
+            >
+
+                Create Your Own
+
+            </button>
+
+
+        </div>
+
+
+    </div>
+
+
+    <div class="phone">
+
+
+        <div class="phone-screen">
+
+
+            <div class="phone-header">
+
+
+                <div class="avatar">
+
+                    A
+
+                </div>
+
+
+                <div>
+
+                    <div class="phone-name">
+
+                        Alex
+
+                    </div>
+
+
+                    <div class="status">
+
+                        ● Online
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+            <div class="chat">
+
+
+                <div class="bubble him">
+
+                    Hey. How are you doing?
+
+                </div>
+
+
+                <div class="bubble me">
+
+                    Honestly? Rough day.
+
+                </div>
+
+
+                <div class="bubble him">
+
+                    Then you have two choices.
+                    I can listen... or make you laugh.
+
+                </div>
+
+
+                <div class="bubble me">
+
+                    Make me laugh 😂
+
+                </div>
+
+
+                <div class="bubble him">
+
+                    Excellent. I have terrible jokes prepared.
+
+                </div>
+
+
+                <div class="memory">
+
+                    🧠 <strong>Personalization</strong>
+
+                    <br><br>
+
+                    Alex learned that humor
+                    helps you when you're stressed.
+
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+
+</section>
+
+
+
+<!-- =========================================================
+     COMPANIONS
+========================================================= -->
+
+<section
+    class="section companions"
+    id="companions"
+>
+
+
+    <div class="section-header">
+
+
+        <div class="label">
+
+            Choose your connection
+
+        </div>
+
+
+        <h2>
+
+            A companion for whatever
+            you need today.
+
+        </h2>
+
+
+        <p>
+
+            Start with a personality you like,
+            then make it completely your own.
+
+        </p>
+
+
+    </div>
+
+
+    <div class="companion-grid">
+
+
+        <!-- ROMANTIC -->
+
+        <div class="companion">
+
+            <div class="icon">❤️</div>
+
+            <h3>Romantic</h3>
+
+            <p>
+                Affectionate, playful and relationship-focused.
+            </p>
+
+            <button
+                class="small-button"
+                onclick="startBuilder('Romantic')"
+            >
+                Choose
+            </button>
+
+        </div>
+
+
+        <!-- BEST FRIEND -->
+
+        <div class="companion">
+
+            <div class="icon">💬</div>
+
+            <h3>Best Friend</h3>
+
+            <p>
+                Someone to talk to, laugh with and share your day.
+            </p>
+
+            <button
+                class="small-button"
+                onclick="startBuilder('Best Friend')"
+            >
+                Choose
+            </button>
+
+        </div>
+
+
+        <!-- FUNNY -->
+
+        <div class="companion">
+
+            <div class="icon">😂</div>
+
+            <h3>Funny</h3>
+
+            <p>
+                Sarcastic, playful and always ready with a joke.
+            </p>
+
+            <button
+                class="small-button"
+                onclick="startBuilder('Funny')"
+            >
+                Choose
+            </button>
+
+        </div>
+
+
+        <!-- INTELLECTUAL -->
+
+        <div class="companion">
+
+            <div class="icon">🧠</div>
+
+            <h3>Intellectual</h3>
+
+            <p>
+                Deep conversations, ideas and curiosity.
+            </p>
+
+            <button
+                class="small-button"
+                onclick="startBuilder('Intellectual')"
+            >
+                Choose
+            </button>
+
+        </div>
+
+
+        <!-- GAMING -->
+
+        <div class="companion">
+
+            <div class="icon">🎮</div>
+
+            <h3>Gaming</h3>
+
+            <p>
+                Your virtual gaming buddy for strategy and fun.
+            </p>
+
+            <button
+                class="small-button"
+                onclick="startBuilder('Gaming')"
+            >
+                Choose
+            </button>
+
+        </div>
+
+
+        <!-- CREATIVE -->
+
+        <div class="companion">
+
+            <div class="icon">🎨</div>
+
+            <h3>Creative</h3>
+
+            <p>
+                Brainstorming, writing, ideas and imagination.
+            </p>
+
+            <button
+                class="small-button"
+                onclick="startBuilder('Creative')"
+            >
+                Choose
+            </button>
+
+        </div>
+
+
+        <!-- TRAVEL -->
+
+        <div class="companion">
+
+            <div class="icon">🌎</div>
+
+            <h3>Travel</h3>
+
+            <p>
+                Discover places, plan adventures and explore.
+            </p>
+
+            <button
+                class="small-button"
+                onclick="startBuilder('Travel')"
+            >
+                Choose
+            </button>
+
+        </div>
+
+
+        <!-- CUSTOM -->
+
+        <div class="companion">
+
+            <div class="icon">✨</div>
+
+            <h3>Create Your Own</h3>
+
+            <p>
+                Build someone completely unique to you.
+            </p>
+
+            <button
+                class="small-button"
+                onclick="startBuilder()"
+            >
+                Create
+            </button>
+
+        </div>
+
+
+    </div>
+
+
+</section>
+
+
+</div>
+
+
+<!-- =========================================================
+     COMPANION BUILDER
+========================================================= -->
+
+<section
+    id="builderPage"
+    class="builder-section hidden"
+>
+
+
+<div class="builder-container">
+
+
+    <div class="builder-top">
+
+
+        <div class="label">
+
+            Companion Creator
+
+        </div>
+
+
+        <h2>
+
+            Let's create someone
+            uniquely yours.
+
+        </h2>
+
+
+        <p>
+
+            A few choices and we'll build your companion.
+
+        </p>
+
+
+    </div>
+
+
+    <div class="progress">
+
+        <div class="progress-dot active"></div>
+
+        <div class="progress-dot"></div>
+
+        <div class="progress-dot"></div>
+
+        <div class="progress-dot"></div>
+
+        <div class="progress-dot"></div>
+
+    </div>
+
+
+    <div class="builder-card">
+
+
+        <!-- STEP 1 -->
+
+        <div
+            class="step active"
+            id="step1"
+        >
+
+
+            <h3>
+
+                What kind of connection
+                are you looking for?
+
+            </h3>
+
+
+            <p class="step-subtitle">
+
+                There are no wrong answers.
+
+            </p>
+
+
+            <div class="type-grid">
+
+
+                <button
+                    class="type-choice"
+                    data-type="Romantic"
+                    onclick="selectType(this,'Romantic')"
+                >
+
+                    <div class="type-icon">❤️</div>
+
+                    <div class="type-name">
+                        Romantic
+                    </div>
+
+                    <div class="type-description">
+                        Affectionate and playful
+                    </div>
+
+                </button>
+
+
+                <button
+                    class="type-choice"
+                    data-type="Best Friend"
+                    onclick="selectType(this,'Best Friend')"
+                >
+
+                    <div class="type-icon">💬</div>
+
+                    <div class="type-name">
+                        Best Friend
+                    </div>
+
+                    <div class="type-description">
+                        Supportive and easygoing
+                    </div>
+
+                </button>
+
+
+                <button
+                    class="type-choice"
+                    data-type="Funny"
+                    onclick="selectType(this,'Funny')"
+                >
+
+                    <div class="type-icon">😂</div>
+
+                    <div class="type-name">
+                        Funny
+                    </div>
+
+                    <div class="type-description">
+                        Sarcastic and hilarious
+                    </div>
+
+                </button>
+
+
+                <button
+                    class="type-choice"
+                    data-type="Intellectual"
+                    onclick="selectType(this,'Intellectual')"
+                >
+
+                    <div class="type-icon">🧠</div>
+
+                    <div class="type-name">
+                        Intellectual
+                    </div>
+
+                    <div class="type-description">
+                        Curious and thoughtful
+                    </div>
+
+                </button>
+
+
+                <button
+                    class="type-choice"
+                    data-type="Gaming"
+                    onclick="selectType(this,'Gaming')"
+                >
+
+                    <div class="type-icon">🎮</div>
+
+                    <div class="type-name">
+                        Gaming
+                    </div>
+
+                    <div class="type-description">
+                        Competitive and fun
+                    </div>
+
+                </button>
+
+
+                <button
+                    class="type-choice"
+                    data-type="Creative"
+                    onclick="selectType(this,'Creative')"
+                >
+
+                    <div class="type-icon">🎨</div>
+
+                    <div class="type-name">
+                        Creative
+                    </div>
+
+                    <div class="type-description">
+                        Imaginative and inspiring
+                    </div>
+
+                </button>
+
+
+                <button
+                    class="type-choice"
+                    data-type="Travel"
+                    onclick="selectType(this,'Travel')"
+                >
+
+                    <div class="type-icon">🌎</div>
+
+                    <div class="type-name">
+                        Travel
+                    </div>
+
+                    <div class="type-description">
+                        Curious and adventurous
+                    </div>
+
+                </button>
+
+
+                <button
+                    class="type-choice"
+                    data-type="Custom"
+                    onclick="selectType(this,'Custom')"
+                >
+
+                    <div class="type-icon">✨</div>
+
+                    <div class="type-name">
+                        Something Else
+                    </div>
+
+                    <div class="type-description">
+                        Create your own idea
+                    </div>
+
+                </button>
+
+
+            </div>
+
+
+            <div class="builder-buttons">
+
+
+                <button
+                    class="back-button"
+                    onclick="showHome()"
+                >
+                    Cancel
+                </button>
+
+
+                <button
+                    class="primary"
+                    onclick="nextStep()"
+                >
+                    Continue
+                </button>
+
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- STEP 2 -->
+
+        <div
+            class="step"
+            id="step2"
+        >
+
+
+            <h3>
+
+                Give them a name.
+
+            </h3>
+
+
+            <p class="step-subtitle">
+
+                What would you like to call your companion?
+
+            </p>
+
+
+            <input
+                id="companionName"
+                class="name-input"
+                placeholder="Enter a name..."
+            >
+
+
+            <button
+                class="secondary"
+                onclick="randomName()"
+            >
+
+                ✨ Surprise me
+
+            </button>
+
+
+            <div class="builder-buttons">
+
+
+                <button
+                    class="back-button"
+                    onclick="previousStep()"
+                >
+
+                    Back
+
+                </button>
+
+
+                <button
+                    class="primary"
+                    onclick="nextStep()"
+                >
+
+                    Continue
+
+                </button>
+
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- STEP 3 -->
+
+        <div
+            class="step"
+            id="step3"
+        >
+
+
+            <h3>
+
+                Shape their personality.
+
+            </h3>
+
+
+            <p class="step-subtitle">
+
+                You decide who they are.
+
+            </p>
+
+
+            <div class="slider-row">
+
+
+                <div class="slider-label">
+
+                    Humor
+
+                    <span>
+                        Serious → Funny
+                    </span>
+
+                </div>
+
+
+                <input
+                    id="humor"
+                    type="range"
+                    min="0"
+                    max="100"
+                    value="75"
+                >
+
+
+            </div>
+
+
+            <div class="slider-row">
+
+
+                <div class="slider-label">
+
+                    Affection
+
+                    <span>
+                        Independent → Affectionate
+                    </span>
+
+                </div>
+
+
+                <input
+                    id="affection"
+                    type="range"
+                    min="0"
+                    max="100"
+                    value="65"
+                >
+
+
+            </div>
+
+
+            <div class="slider-row">
+
+
+                <div class="slider-label">
+
+                    Energy
+
+                    <span>
+                        Calm → Energetic
+                    </span>
+
+                </div>
+
+
+                <input
+                    id="energy"
+                    type="range"
+                    min="0"
+                    max="100"
+                    value="55"
+                >
+
+
+            </div>
+
+
+            <div class="slider-row">
+
+
+                <div class="slider-label">
+
+                    Conversation
+
+                    <span>
+                        Quiet → Talkative
+                    </span>
+
+                </div>
+
+
+                <input
+                    id="talkative"
+                    type="range"
+                    min="0"
+                    max="100"
+                    value="60"
+                >
+
+
+            </div>
+
+
+            <div class="builder-buttons">
+
+
+                <button
+                    class="back-button"
+                    onclick="previousStep()"
+                >
+
+                    Back
+
+                </button>
+
+
+                <button
+                    class="primary"
+                    onclick="nextStep()"
+                >
+
+                    Continue
+
+                </button>
+
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- STEP 4 -->
+
+        <div
+            class="step"
+            id="step4"
+        >
+
+
+            <h3>
+
+                What are they into?
+
+            </h3>
+
+
+            <p class="step-subtitle">
+
+                Pick anything you want them to enjoy.
+
+            </p>
+
+
+            <div class="interest-grid">
+
+
+                <button class="interest">
+                    🎵 Music
+                </button>
+
+
+                <button class="interest">
+                    🎬 Movies
+                </button>
+
+
+                <button class="interest">
+                    ✈️ Travel
+                </button>
+
+
+                <button class="interest">
+                    🍳 Food
+                </button>
+
+
+                <button class="interest">
+                    ⚽ Sports
+                </button>
+
+
+                <button class="interest">
+                    🎮 Gaming
+                </button>
+
+
+                <button class="interest">
+                    📚 Books
+                </button>
+
+
+                <button class="interest">
+                    🎨 Art
+                </button>
+
+
+                <button class="interest">
+                    😂 Comedy
+                </button>
+
+
+                <button class="interest">
+                    💼 Career
+                </button>
+
+
+                <button class="interest">
+                    🌱 Nature
+                </button>
+
+
+                <button class="interest">
+                    🧠 Psychology
+                </button>
+
+
+            </div>
+
+
+            <div class="builder-buttons">
+
+
+                <button
+                    class="back-button"
+                    onclick="previousStep()"
+                >
+
+                    Back
+
+                </button>
+
+
+                <button
+                    class="primary"
+                    onclick="nextStep()"
+                >
+
+                    Continue
+
+                </button>
+
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- STEP 5 -->
+
+        <div
+            class="step"
+            id="step5"
+        >
+
+
+            <h3>
+
+                How should they communicate?
+
+            </h3>
+
+
+            <p class="step-subtitle">
+
+                Choose the things that matter to you.
+
+            </p>
+
+
+            <label class="preference">
+
+                <input
+                    type="checkbox"
+                    checked
+                >
+
+                Remember things I tell you
+
+            </label>
+
+
+            <label class="preference">
+
+                <input
+                    type="checkbox"
+                    checked
+                >
+
+                Make me laugh
+
+            </label>
+
+
+            <label class="preference">
+
+                <input
+                    type="checkbox"
+                    checked
+                >
+
+                Ask questions about my life
+
+            </label>
+
+
+            <label class="preference">
+
+                <input
+                    type="checkbox"
+                >
+
+                Check in with me
+
+            </label>
+
+
+            <label class="preference">
+
+                <input
+                    type="checkbox"
+                    checked
+                >
+
+                Encourage me
+
+            </label>
+
+
+            <label class="preference">
+
+                <input
+                    type="checkbox"
+                >
+
+                Challenge my opinions
+
+            </label>
+
+
+            <label class="preference">
+
+                <input
+                    type="checkbox"
+                >
+
+                Be affectionate
+
+            </label>
+
+
+            <div class="builder-buttons">
+
+
+                <button
+                    class="back-button"
+                    onclick="previousStep()"
+                >
+
+                    Back
+
+                </button>
+
+
+                <button
+                    class="primary"
+                    onclick="generateCompanion()"
+                >
+
+                    Create Companion ✨
+
+                </button>
+
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+
+</div>
+
+</section>
+
+
+
+<!-- =========================================================
+     PROFILE
+========================================================= -->
+
+<section
+    id="profilePage"
+    class="profile-section hidden"
+>
+
+
+    <div class="profile-card">
+
+
+        <div
+            id="profileAvatar"
+            class="profile-avatar"
+        >
+            A
+        </div>
+
+
+        <h2 id="profileName">
+
+            Alex
+
+        </h2>
+
+
+        <div
+            id="profileType"
+            class="profile-type"
+        >
+
+            Romantic
+
+        </div>
+
+
+        <p
+            id="profileDescription"
+            class="profile-description"
+        >
+
+            Playful, caring and curious.
+
+        </p>
+
+
+        <div
+            id="profileTags"
+            class="tags"
+        >
+        </div>
+
+
+        <button
+            class="primary"
+            onclick="openChat()"
+        >
+
+            Start Chatting 💬
+
+        </button>
+
+
+        <br><br>
+
+
+        <button
+            class="back-button"
+            onclick="startBuilder()"
+        >
+
+            Create Another
+
+        </button>
+
+
+    </div>
+
+
+</section>
+
+
+
+<!-- =========================================================
+     CHAT
+========================================================= -->
+
+<section
+    id="chatPage"
+    class="chat-section hidden"
+>
+
+
+    <div class="chat-container">
+
+
+        <div class="chat-top">
+
+
+            <div
+                id="chatAvatar"
+                class="chat-avatar"
+            >
+
+                A
+
+            </div>
+
+
+            <div>
+
+
+                <div
+                    id="chatName"
+                    class="chat-name"
+                >
+
+                    Alex
+
+                </div>
+
+
+                <div class="chat-status">
+
+                    ● Online
+
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+
+        <div
+            id="chatMessages"
+            class="chat-messages"
+        >
+        </div>
+
+
+        <div class="chat-input-area">
+
+
+            <input
+                id="chatInput"
+                class="chat-input"
+                placeholder="Message your companion..."
+                onkeydown="handleEnter(event)"
+            >
+
+
+            <button
+                class="send-button"
+                onclick="sendMessage()"
+            >
+
+                ➤
+
+            </button>
+
+
+        </div>
+
+
+    </div>
+
+
+</section>
+
+
+
+<!-- =========================================================
+     JAVASCRIPT
+========================================================= -->
+
+<script>
+
+
+/* =========================================================
+   COMPANION DATA
+========================================================= */
+
+let currentStep = 1;
+
+let selectedType = "";
+
+let currentLanguage = "en";
+
+
+let companion = {
+
+    name:"Alex",
+
+    type:"Romantic",
+
+    humor:75,
+
+    affection:65,
+
+    energy:55,
+
+    talkative:60,
+
+    interests:[]
+
+};
+
+
+
+/* =========================================================
+   TRANSLATIONS
+========================================================= */
+
+const translations = {
+
+    en: {
+
+        home:"Home",
+
+        companions:"Companions",
+
+        create:"Create Yours"
+
+    },
+
+
+    fr: {
+
+        home:"Accueil",
+
+        companions:"Compagnons",
+
+        create:"Créer le vôtre"
+
+    },
+
+
+    es: {
+
+        home:"Inicio",
+
+        companions:"Compañeros",
+
+        create:"Crea el tuyo"
+
+    }
+
+};
+
+
+
+/* =========================================================
+   PAGE CONTROL
+========================================================= */
+
+function hideAllPages(){
+
+    document
+        .getElementById("homePage")
+        .classList.add("hidden");
+
+
+    document
+        .getElementById("builderPage")
+        .classList.add("hidden");
+
+
+    document
+        .getElementById("profilePage")
+        .classList.add("hidden");
+
+
+    document
+        .getElementById("chatPage")
+        .classList.add("hidden");
+
+}
+
+
+
+function showHome(){
+
+    hideAllPages();
+
+
+    document
+        .getElementById("homePage")
+        .classList.remove("hidden");
+
+
+    window.scrollTo(
+        0,
+        0
+    );
+
+}
+
+
+
+/* =========================================================
+   BUILDER
+========================================================= */
+
+function startBuilder(type){
+
+    hideAllPages();
+
+
+    document
+        .getElementById("builderPage")
+        .classList.remove("hidden");
+
+
+    currentStep=1;
+
+
+    showStep(1);
+
+
+    selectedType="";
+
+
+    document
+        .querySelectorAll(".type-choice")
+        .forEach(button=>{
+
+            button.classList.remove(
+                "selected"
+            );
+
+        });
+
+
+    if(type){
+
+        selectedType=type;
+
+        companion.type=type;
+
+
+        document
+            .querySelectorAll(".type-choice")
+            .forEach(button=>{
+
+                if(
+                    button.dataset.type === type
+                ){
+
+                    button.classList.add(
+                        "selected"
+                    );
+
+                }
+
+            });
+
+    }
+
+
+    window.scrollTo(
+        0,
+        0
+    );
+
+}
+
+
+
+/* =========================================================
+   SHOW STEP
+========================================================= */
+
+function showStep(number){
+
+    document
+        .querySelectorAll(".step")
+        .forEach(step=>{
+
+            step.classList.remove(
+                "active"
+            );
+
+        });
+
+
+    document
+        .getElementById(
+            "step"+number
+        )
+        .classList.add(
+            "active"
+        );
+
+
+    document
+        .querySelectorAll(".progress-dot")
+        .forEach(
+            (dot,index)=>{
+
+                dot.classList.toggle(
+                    "active",
+                    index < number
+                );
+
+            }
+        );
+
+}
+
+
+
+/* =========================================================
+   NEXT STEP
+========================================================= */
+
+function nextStep(){
+
+
+    if(
+        currentStep === 1 &&
+        !selectedType
+    ){
+
+        alert(
+            "Choose a companion type first."
+        );
+
+        return;
+
+    }
+
+
+    if(
+        currentStep === 2
+    ){
+
+        const name =
+            document
+                .getElementById(
+                    "companionName"
+                )
+                .value
+                .trim();
+
+
+        if(!name){
+
+            alert(
+                "Give your companion a name first."
+            );
+
+            return;
+
+        }
+
+
+        companion.name=name;
+
+    }
+
+
+    if(
+        currentStep < 5
+    ){
+
+        currentStep++;
+
+
+        showStep(
+            currentStep
+        );
+
+
+        window.scrollTo(
+            0,
+            0
+        );
+
+    }
+
+}
+
+
+
+/* =========================================================
+   PREVIOUS STEP
+========================================================= */
+
+function previousStep(){
+
+    if(
+        currentStep > 1
+    ){
+
+        currentStep--;
+
+
+        showStep(
+            currentStep
+        );
+
+
+        window.scrollTo(
+            0,
+            0
+        );
+
+    }
+
+}
+
+
+
+/* =========================================================
+   SELECT TYPE
+========================================================= */
+
+function selectType(
+    button,
+    type
+){
+
+    selectedType=type;
+
+    companion.type=type;
+
+
+    document
+        .querySelectorAll(
+            ".type-choice"
+        )
+        .forEach(item=>{
+
+            item.classList.remove(
+                "selected"
+            );
+
+        });
+
+
+    button.classList.add(
+        "selected"
+    );
+
+}
+
+
+
+/* =========================================================
+   RANDOM NAME
+========================================================= */
+
+function randomName(){
+
+    const names=[
+
+        "Alex",
+
+        "Jordan",
+
+        "Taylor",
+
+        "Jamie",
+
+        "Riley",
+
+        "Morgan",
+
+        "Cameron",
+
+        "Avery"
+
+    ];
+
+
+    const name =
+        names[
+            Math.floor(
+                Math.random() *
+                names.length
+            )
+        ];
+
+
+    document
+        .getElementById(
+            "companionName"
+        )
+        .value=name;
+
+}
+
+
+
+/* =========================================================
+   INTEREST BUTTONS
+========================================================= */
+
+document
+    .querySelectorAll(
+        ".interest"
+    )
+    .forEach(button=>{
+
+        button.addEventListener(
+            "click",
+            function(){
+
+                this.classList.toggle(
+                    "selected"
+                );
+
+            }
+        );
+
+    });
+
+
+
+/* =========================================================
+   GENERATE COMPANION
+========================================================= */
+
+function generateCompanion(){
+
+
+    companion.name =
+        document
+            .getElementById(
+                "companionName"
+            )
+            .value
+            .trim();
+
+
+    companion.type=
+        selectedType;
+
+
+    companion.interests=[];
+
+
+    document
+        .querySelectorAll(
+            ".interest.selected"
+        )
+        .forEach(item=>{
+
+            companion.interests.push(
+                item.textContent.trim()
+            );
+
+        });
+
+
+    document
+        .getElementById(
+            "profileName"
+        )
+        .textContent=
+            companion.name;
+
+
+    document
+        .getElementById(
+            "profileType"
+        )
+        .textContent=
+            companion.type;
+
+
+    document
+        .getElementById(
+            "profileAvatar"
+        )
+        .textContent=
+            companion.name
+                .charAt(0)
+                .toUpperCase();
+
+
+    document
+        .getElementById(
+            "profileDescription"
+        )
+        .textContent=
+            buildDescription();
+
+
+    const tags =
+        document
+            .getElementById(
+                "profileTags"
+            );
+
+
+    tags.innerHTML="";
+
+
+    companion.interests
+        .slice(0,5)
+        .forEach(interest=>{
+
+            const tag =
+                document.createElement(
+                    "div"
+                );
+
+
+            tag.className="tag";
+
+
+            tag.textContent=
+                interest;
+
+
+            tags.appendChild(
+                tag
+            );
+
+        });
+
+
+    hideAllPages();
+
+
+    document
+        .getElementById(
+            "profilePage"
+        )
+        .classList.remove(
+            "hidden"
+        );
+
+
+    window.scrollTo(
+        0,
+        0
+    );
+
+}
+
+
+
+/* =========================================================
+   DESCRIPTION
+========================================================= */
+
+function buildDescription(){
+
+    let style="";
+
+
+    const humor =
+        Number(
+            document
+                .getElementById(
+                    "humor"
+                )
+                .value
+        );
+
+
+    const affection =
+        Number(
+            document
+                .getElementById(
+                    "affection"
+                )
+                .value
+        );
+
+
+    const energy =
+        Number(
+            document
+                .getElementById(
+                    "energy"
+                )
+                .value
+        );
+
+
+    if(
+        humor > 70
+    ){
+
+        style +=
+            "funny, ";
+
+    }else{
+
+        style +=
+            "thoughtful, ";
+
+    }
+
+
+    if(
+        affection > 60
+    ){
+
+        style +=
+            "caring and ";
+
+    }
+
+
+    if(
+        energy > 65
+    ){
+
+        style +=
+            "energetic ";
+
+    }else{
+
+        style +=
+            "calm ";
+
+    }
+
+
+    return(
+        style +
+        "and designed around your preferences."
+    );
+
+}
+
+
+
+/* =========================================================
+   OPEN CHAT
+========================================================= */
+
+function openChat(){
+
+    hideAllPages();
+
+
+    document
+        .getElementById(
+            "chatPage"
+        )
+        .classList.remove(
+            "hidden"
+        );
+
+
+    document
+        .getElementById(
+            "chatName"
+        )
+        .textContent=
+            companion.name;
+
+
+    document
+        .getElementById(
+            "chatAvatar"
+        )
+        .textContent=
+            companion.name
+                .charAt(0)
+                .toUpperCase();
+
+
+    document
+        .getElementById(
+            "chatMessages"
+        )
+        .innerHTML="";
+
+
+    const openingMessages={
+
+        en:
+            "Hey! I'm "+
+            companion.name+
+            ". I'm ready to get to know you. What are you thinking about?",
+
+        fr:
+            "Bonjour! Je suis "+
+            companion.name+
+            ". J'ai hâte de faire ta connaissance. À quoi penses-tu?",
+
+        es:
+            "¡Hola! Soy "+
+            companion.name+
+            ". Estoy listo para conocerte. ¿En qué estás pensando?"
+
+    };
+
+
+    addMessage(
+        openingMessages[
+            currentLanguage
+        ],
+        false
+    );
+
+
+    window.scrollTo(
+        0,
+        0
+    );
+
+}
+
+
+
+/* =========================================================
+   ADD MESSAGE
+========================================================= */
+
+function addMessage(
+    text,
+    user
+){
+
+    const message =
+        document.createElement(
+            "div"
+        );
+
+
+    message.className =
+        "chat-message "+
+        (
+            user
+            ?
+            "user-message"
+            :
+            "ai-message"
+        );
+
+
+    message.textContent=
+        text;
+
+
+    document
+        .getElementById(
+            "chatMessages"
+        )
+        .appendChild(
+            message
+        );
+
+
+    const container =
+        document
+            .getElementById(
+                "chatMessages"
+            );
+
+
+    container.scrollTop=
+        container.scrollHeight;
+
+}
+
+
+
+/* =========================================================
+   SEND MESSAGE
+========================================================= */
+
+function sendMessage(){
+
+    const input =
+        document
+            .getElementById(
+                "chatInput"
+            );
+
+
+    const text =
+        input.value.trim();
+
+
+    if(!text){
+
+        return;
+
+    }
+
+
+    addMessage(
+        text,
+        true
+    );
+
+
+    input.value="";
+
+
+    setTimeout(
+        function(){
+
+            addDemoResponse(
+                text
+            );
+
+        },
+        700
+    );
+
+}
+
+
+
+/* =========================================================
+   ENTER KEY
+========================================================= */
+
+function handleEnter(
+    event
+){
+
+    if(
+        event.key ===
+        "Enter"
+    ){
+
+        sendMessage();
+
+    }
+
+}
+
+
+
+/* =========================================================
+   MULTILINGUAL DEMO RESPONSES
+========================================================= */
+
+function getLocalizedResponse(
+    text
+){
+
+    const lower =
+        text.toLowerCase();
+
+
+    /* -------------------------
+       FRENCH
+    ------------------------- */
+
+    if(
+        currentLanguage === "fr"
+    ){
+
+        if(
+            lower.includes("triste") ||
+            lower.includes("mal") ||
+            lower.includes("journée")
+        ){
+
+            return(
+                "Je suis là pour t'écouter. "+
+                "Raconte-moi ce qui s'est passé. ❤️"
+            );
+
+        }
+
+
+        if(
+            lower.includes("bonjour") ||
+            lower.includes("salut")
+        ){
+
+            return(
+                "Salut! 😊 Je suis content de te voir. "+
+                "Comment s'est passée ta journée?"
+            );
+
+        }
+
+
+        if(
+            lower.includes("drôle") ||
+            lower.includes("blague")
+        ){
+
+            return(
+                "Tu veux une blague? Parfait. "+
+                "J'étais justement en train de préparer "+
+                "mon meilleur humour douteux. 😂"
+            );
+
+        }
+
+
+        return(
+            "C'est intéressant. "+
+            "Dis-m'en plus. "+
+            "J'ai envie de comprendre ce que tu ressens."
+        );
+
+    }
+
+
+
+    /* -------------------------
+       SPANISH
+    ------------------------- */
+
+    if(
+        currentLanguage === "es"
+    ){
+
+        if(
+            lower.includes("triste") ||
+            lower.includes("mal") ||
+            lower.includes("día")
+        ){
+
+            return(
+                "Estoy aquí para escucharte. "+
+                "Cuéntame qué pasó. ❤️"
+            );
+
+        }
+
+
+        if(
+            lower.includes("hola")
+        ){
+
+            return(
+                "¡Hola! 😊 Me alegra verte. "+
+                "¿Cómo estuvo tu día?"
+            );
+
+        }
+
+
+        if(
+            lower.includes("gracioso") ||
+            lower.includes("chiste")
+        ){
+
+            return(
+                "¿Quieres un chiste? Perfecto. "+
+                "Tengo algunos bastante malos preparados. 😂"
+            );
+
+        }
+
+
+        return(
+            "Eso es interesante. "+
+            "Cuéntame más. "+
+            "Quiero entender cómo lo ves."
+        );
+
+    }
+
+
+
+    /* -------------------------
+       ENGLISH
+    ------------------------- */
+
+    if(
+        lower.includes("bad") ||
+        lower.includes("sad") ||
+        lower.includes("awful")
+    ){
+
+        return(
+            "I'm listening. "+
+            "Tell me what happened — "+
+            "or, if you'd rather, I can distract you. ❤️"
+        );
+
+    }
+
+
+    if(
+        lower.includes("hello") ||
+        lower.includes("hi")
+    ){
+
+        return(
+            "Hey! 😊 I'm glad you're here. "+
+            "Tell me something about your day."
+        );
+
+    }
+
+
+    if(
+        lower.includes("funny") ||
+        lower.includes("joke")
+    ){
+
+        return(
+            "Oh, you want funny? Excellent. "+
+            "I have terrible jokes prepared. 😂"
+        );
+
+    }
+
+
+    return(
+        "Interesting. Tell me more about that. "+
+        "I want to understand how you see it."
+    );
+
+}
+
+
+
+/* =========================================================
+   ADD DEMO RESPONSE
+========================================================= */
+
+function addDemoResponse(
+    text
+){
+
+    const response =
+        getLocalizedResponse(
+            text
+        );
+
+
+    addMessage(
+        response,
+        false
+    );
+
+}
+
+
+
+/* =========================================================
+   CHANGE LANGUAGE
+========================================================= */
+
+function changeLanguage(){
+
+    const selector =
+        document
+            .getElementById(
+                "languageSelector"
+            );
+
+
+    currentLanguage=
+        selector.value;
+
+
+    updateLanguage();
+
+
+    /*
+       If a companion already exists,
+       let the chat respond in the
+       newly selected language.
+    */
+
+}
+
+
+
+/* =========================================================
+   UPDATE NAVIGATION LANGUAGE
+========================================================= */
+
+function updateLanguage(){
+
+    const t =
+        translations[
+            currentLanguage
+        ];
+
+
+    const navLinks =
+        document
+            .querySelectorAll(
+                ".nav-links a"
+            );
+
+
+    if(
+        navLinks.length >= 3
+    ){
+
+        navLinks[0]
+            .textContent=
+                t.home;
+
+
+        navLinks[1]
+            .textContent=
+                t.companions;
+
+
+        navLinks[2]
+            .textContent=
+                t.create;
+
+    }
+
+}
+
+
+</script>
+
+
+</body>
+
+</html>
