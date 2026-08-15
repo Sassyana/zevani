@@ -687,7 +687,97 @@ input[type=range]{width:100%}
     .profile-card{padding:30px 20px}
     .beta-card{padding:35px 25px}
 }
+
+/* AUTH */
+.auth-section{
+    min-height:100vh;
+    padding:130px 7% 80px;
+    background:var(--cream);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+.auth-card{
+    width:100%;
+    max-width:520px;
+    background:white;
+    border:1px solid var(--border);
+    border-radius:30px;
+    padding:45px;
+    box-shadow:0 25px 60px rgba(0,0,0,.08);
+}
+.auth-card h2{
+    font-family:Georgia,serif;
+    font-size:42px;
+    font-weight:normal;
+    color:var(--navy);
+    margin:12px 0;
+}
+.auth-card p{
+    color:var(--muted);
+    line-height:1.6;
+    margin-bottom:22px;
+}
+.auth-input{
+    width:100%;
+    padding:16px;
+    border:1px solid var(--border);
+    border-radius:14px;
+    font-size:15px;
+    outline:none;
+    margin-bottom:12px;
+}
+.auth-input:focus{border-color:var(--gold)}
+.auth-message{
+    padding:12px 14px;
+    border-radius:12px;
+    font-size:13px;
+    margin-bottom:15px;
+    display:none;
+}
+.auth-error{background:#fff0ef;color:#a94442}
+.auth-success{background:#edf8ef;color:#3d7d4a}
+.auth-switch{
+    text-align:center;
+    margin-top:20px;
+    font-size:13px;
+}
+.auth-switch button{
+    border:none;
+    background:none;
+    color:#9a7d4b;
+    font-weight:bold;
+    padding:0;
+}
+.account-bar{
+    display:none;
+    align-items:center;
+    gap:10px;
+}
+.account-email{
+    color:#59616e;
+    font-size:12px;
+    max-width:180px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+.logout-button{
+    border:1px solid #c9c3b6;
+    background:white;
+    color:var(--navy);
+    padding:8px 13px;
+    border-radius:20px;
+    font-size:12px;
+    font-weight:bold;
+}
+@media(max-width:600px){
+    .account-email{display:none}
+    .auth-card{padding:30px 22px}
+}
+
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body>
@@ -721,6 +811,21 @@ input[type=range]{width:100%}
            data-i18n="navCreate">
             Create Yours
         </a>
+
+        <div id="guestAuthButtons" class="account-bar" style="display:flex">
+            <button class="logout-button" onclick="showAuth('login')"
+                    data-i18n="loginButton">Log In</button>
+            <button class="primary" style="padding:9px 15px"
+                    onclick="showAuth('register')"
+                    data-i18n="registerButton">Create Account</button>
+        </div>
+
+        <div id="accountBar" class="account-bar">
+            <span id="accountEmail" class="account-email"></span>
+            <button class="logout-button" onclick="logoutUser()" data-i18n="logout">
+                Log Out
+            </button>
+        </div>
 
     </div>
 
@@ -1013,6 +1118,98 @@ input[type=range]{width:100%}
 
 </section>
 
+
+
+<!-- ACCOUNT -->
+<section id="authPage" class="auth-section hidden">
+
+    <div class="auth-card">
+
+        <div class="label" id="authLabel" data-i18n="registerLabel">
+            CREATE YOUR ACCOUNT
+        </div>
+
+        <h2 id="authTitle" data-i18n="registerTitle">
+            Join ZEVANI.
+        </h2>
+
+        <p id="authText" data-i18n="registerText">
+            Create your private member account to save your ZEVANI companion.
+        </p>
+
+        <div id="authError" class="auth-message auth-error"></div>
+        <div id="authSuccess" class="auth-message auth-success"></div>
+
+        <form id="authForm" onsubmit="handleAuthSubmit(event)">
+
+            <input
+                id="authName"
+                class="auth-input"
+                type="text"
+                autocomplete="name"
+                data-placeholder="namePlaceholderAccount"
+                placeholder="Your name"
+            >
+
+            <input
+                id="authEmail"
+                class="auth-input"
+                type="email"
+                required
+                autocomplete="email"
+                data-placeholder="emailPlaceholder"
+                placeholder="Email address"
+            >
+
+            <input
+                id="authPassword"
+                class="auth-input"
+                type="password"
+                required
+                minlength="6"
+                autocomplete="new-password"
+                data-placeholder="passwordPlaceholder"
+                placeholder="Password (at least 6 characters)"
+            >
+
+            <input
+                id="authPasswordConfirm"
+                class="auth-input"
+                type="password"
+                required
+                minlength="6"
+                autocomplete="new-password"
+                data-placeholder="confirmPasswordPlaceholder"
+                placeholder="Confirm password"
+            >
+
+            <button id="authSubmit" class="primary" type="submit" style="width:100%">
+                <span id="authSubmitText" data-i18n="registerButton">
+                    Create Account
+                </span>
+            </button>
+
+        </form>
+
+        <div class="auth-switch">
+            <span id="authSwitchText" data-i18n="alreadyAccount">
+                Already have an account?
+            </span>
+            <button type="button" onclick="toggleAuthMode()"
+                    id="authSwitchButton" data-i18n="loginHere">
+                Log in
+            </button>
+        </div>
+
+        <br>
+
+        <button class="back-button" onclick="showHome()" style="width:100%"
+                data-i18n="backHome">
+            Back to Home
+        </button>
+
+    </div>
+</section>
 
 <!-- BUILDER -->
 
@@ -1623,6 +1820,16 @@ let currentStep=1;
 let selectedType="";
 let currentLanguage="en";
 let requestedType="";
+let authMode="register";
+let currentUser=null;
+
+// ZEVANI Supabase project
+const SUPABASE_URL="https://hfdembdqzsedjbgemtdp.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY="sb_publishable_NZAxQrtZ-sssoeIGVySf3w_1c0Io_xu";
+const supabaseClient=window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
+);
 
 let companion={
     name:"Alex",
@@ -1739,7 +1946,22 @@ betaTitle:"Welcome to ZEVANI.",
 betaText:"ZEVANI is currently available by invitation only. Enter your invitation code to continue.",
 betaPlaceholder:"Enter invitation code",
 betaError:"That invitation code isn't correct.",
-betaContinue:"Continue →"
+betaContinue:"Continue →",
+logout:"Log Out",
+registerLabel:"CREATE YOUR ACCOUNT",
+registerTitle:"Join ZEVANI.",
+registerText:"Create your private member account to save your ZEVANI companion.",
+registerButton:"Create Account",
+loginButton:"Log In",
+alreadyAccount:"Already have an account?",
+noAccount:"Don't have an account yet?",
+loginHere:"Log in",
+registerHere:"Create one",
+emailPlaceholder:"Email address",
+passwordPlaceholder:"Password (at least 6 characters)",
+confirmPasswordPlaceholder:"Confirm password",
+namePlaceholderAccount:"Your name",
+backHome:"Back to Home"
 },
 
 fr:{
@@ -1840,7 +2062,22 @@ betaTitle:"Bienvenue chez ZEVANI.",
 betaText:"ZEVANI est actuellement disponible uniquement sur invitation. Entrez votre code d'invitation pour continuer.",
 betaPlaceholder:"Entrez votre code",
 betaError:"Ce code d'invitation n'est pas correct.",
-betaContinue:"Continuer →"
+betaContinue:"Continuer →",
+logout:"Déconnexion",
+registerLabel:"CRÉEZ VOTRE COMPTE",
+registerTitle:"Rejoignez ZEVANI.",
+registerText:"Créez votre compte membre privé pour enregistrer votre compagnon ZEVANI.",
+registerButton:"Créer un compte",
+loginButton:"Se connecter",
+alreadyAccount:"Vous avez déjà un compte?",
+noAccount:"Vous n'avez pas encore de compte?",
+loginHere:"Se connecter",
+registerHere:"Créer un compte",
+emailPlaceholder:"Adresse e-mail",
+passwordPlaceholder:"Mot de passe (6 caractères minimum)",
+confirmPasswordPlaceholder:"Confirmez le mot de passe",
+namePlaceholderAccount:"Votre nom",
+backHome:"Retour à l'accueil"
 },
 
 es:{
@@ -1941,7 +2178,22 @@ betaTitle:"Bienvenido a ZEVANI.",
 betaText:"ZEVANI está disponible actualmente solo por invitación. Introduce tu código de invitación para continuar.",
 betaPlaceholder:"Introduce tu código",
 betaError:"Ese código de invitación no es correcto.",
-betaContinue:"Continuar →"
+betaContinue:"Continuar →",
+logout:"Cerrar sesión",
+registerLabel:"CREA TU CUENTA",
+registerTitle:"Únete a ZEVANI.",
+registerText:"Crea tu cuenta privada para guardar tu compañero de ZEVANI.",
+registerButton:"Crear cuenta",
+loginButton:"Iniciar sesión",
+alreadyAccount:"¿Ya tienes una cuenta?",
+noAccount:"¿Todavía no tienes una cuenta?",
+loginHere:"Iniciar sesión",
+registerHere:"Crear una",
+emailPlaceholder:"Correo electrónico",
+passwordPlaceholder:"Contraseña (mínimo 6 caracteres)",
+confirmPasswordPlaceholder:"Confirma la contraseña",
+namePlaceholderAccount:"Tu nombre",
+backHome:"Volver al inicio"
 }
 
 };
@@ -1957,6 +2209,7 @@ function changeLanguage(){
         document.getElementById("languageSelector").value;
 
     applyLanguage();
+    updateAuthForm();
 
 }
 
@@ -1998,6 +2251,7 @@ function hideAllPages(){
 
     document.getElementById("homePage").classList.add("hidden");
     document.getElementById("betaPage").classList.add("hidden");
+    document.getElementById("authPage").classList.add("hidden");
     document.getElementById("builderPage").classList.add("hidden");
     document.getElementById("profilePage").classList.add("hidden");
     document.getElementById("chatPage").classList.add("hidden");
@@ -2086,6 +2340,279 @@ function handleBetaEnter(event){
     if(event.key==="Enter"){
         checkBetaCode();
     }
+
+}
+
+
+
+/* ==============================
+ACCOUNT AUTHENTICATION
+============================== */
+
+function showAuth(mode="register"){
+
+    authMode=mode;
+
+    hideAllPages();
+
+    document.getElementById("authPage")
+        .classList.remove("hidden");
+
+    clearAuthMessages();
+    updateAuthForm();
+
+    window.scrollTo(0,0);
+
+}
+
+function toggleAuthMode(){
+
+    authMode = authMode==="register" ? "login" : "register";
+
+    clearAuthMessages();
+    updateAuthForm();
+
+}
+
+function updateAuthForm(){
+
+    const register = authMode==="register";
+    const t=translations[currentLanguage];
+
+    document.getElementById("authLabel").textContent =
+        register ? t.registerLabel : t.loginButton;
+
+    document.getElementById("authTitle").textContent =
+        register ? t.registerTitle : "Welcome back.";
+
+    document.getElementById("authText").textContent =
+        register
+        ? t.registerText
+        : "Log in to continue to your ZEVANI account.";
+
+    document.getElementById("authName").style.display =
+        register ? "block" : "none";
+
+    document.getElementById("authPasswordConfirm").style.display =
+        register ? "block" : "none";
+
+    document.getElementById("authSubmitText").textContent =
+        register ? t.registerButton : t.loginButton;
+
+    document.getElementById("authSwitchText").textContent =
+        register ? t.alreadyAccount : t.noAccount;
+
+    document.getElementById("authSwitchButton").textContent =
+        register ? t.loginHere : t.registerHere;
+
+    document.getElementById("authPassword").autocomplete =
+        register ? "new-password" : "current-password";
+
+}
+
+function clearAuthMessages(){
+
+    const error=document.getElementById("authError");
+    const success=document.getElementById("authSuccess");
+
+    error.style.display="none";
+    success.style.display="none";
+    error.textContent="";
+    success.textContent="";
+
+}
+
+function showAuthError(message){
+
+    const error=document.getElementById("authError");
+
+    error.textContent=message;
+    error.style.display="block";
+
+    document.getElementById("authSuccess").style.display="none";
+
+}
+
+function showAuthSuccess(message){
+
+    const success=document.getElementById("authSuccess");
+
+    success.textContent=message;
+    success.style.display="block";
+
+    document.getElementById("authError").style.display="none";
+
+}
+
+async function handleAuthSubmit(event){
+
+    event.preventDefault();
+
+    clearAuthMessages();
+
+    const email=document.getElementById("authEmail").value.trim();
+    const password=document.getElementById("authPassword").value;
+
+    if(authMode==="register"){
+
+        const name=document.getElementById("authName").value.trim();
+        const confirm=document.getElementById("authPasswordConfirm").value;
+
+        if(!name){
+            showAuthError(
+                currentLanguage==="fr"
+                ? "Entrez votre nom."
+                : currentLanguage==="es"
+                ? "Introduce tu nombre."
+                : "Please enter your name."
+            );
+            return;
+        }
+
+        if(password!==confirm){
+            showAuthError(
+                currentLanguage==="fr"
+                ? "Les mots de passe ne correspondent pas."
+                : currentLanguage==="es"
+                ? "Las contraseñas no coinciden."
+                : "The passwords do not match."
+            );
+            return;
+        }
+
+        if(password.length<6){
+            showAuthError(
+                currentLanguage==="fr"
+                ? "Le mot de passe doit contenir au moins 6 caractères."
+                : currentLanguage==="es"
+                ? "La contraseña debe tener al menos 6 caracteres."
+                : "Password must be at least 6 characters."
+            );
+            return;
+        }
+
+        const {data,error}=await supabaseClient.auth.signUp({
+            email:email,
+            password:password,
+            options:{
+                data:{
+                    full_name:name
+                }
+            }
+        });
+
+        if(error){
+            showAuthError(error.message);
+            return;
+        }
+
+        currentUser=data.user;
+
+        if(data.session){
+
+            showAuthSuccess(
+                currentLanguage==="fr"
+                ? "Compte créé! Vous êtes connecté."
+                : currentLanguage==="es"
+                ? "¡Cuenta creada! Has iniciado sesión."
+                : "Account created! You're signed in."
+            );
+
+            setTimeout(()=>{
+                startBuilder();
+            },700);
+
+        }else{
+
+            showAuthSuccess(
+                currentLanguage==="fr"
+                ? "Compte créé! Vérifiez votre e-mail pour confirmer votre compte."
+                : currentLanguage==="es"
+                ? "¡Cuenta creada! Revisa tu correo para confirmar tu cuenta."
+                : "Account created! Check your email to confirm your account."
+            );
+
+        }
+
+    }else{
+
+        const {data,error}=await supabaseClient.auth.signInWithPassword({
+            email:email,
+            password:password
+        });
+
+        if(error){
+            showAuthError(error.message);
+            return;
+        }
+
+        currentUser=data.user;
+
+        showAuthSuccess(
+            currentLanguage==="fr"
+            ? "Connexion réussie!"
+            : currentLanguage==="es"
+            ? "¡Has iniciado sesión!"
+            : "You're logged in!"
+        );
+
+        setTimeout(()=>{
+            startBuilder();
+        },500);
+
+    }
+
+}
+
+async function logoutUser(){
+
+    await supabaseClient.auth.signOut();
+
+    currentUser=null;
+
+    document.getElementById("accountBar").style.display="none";
+
+    showHome();
+
+}
+
+function updateAccountBar(){
+
+    const bar=document.getElementById("accountBar");
+    const guest=document.getElementById("guestAuthButtons");
+    const email=document.getElementById("accountEmail");
+
+    if(currentUser){
+
+        email.textContent=currentUser.email || "";
+
+        bar.style.display="flex";
+        guest.style.display="none";
+
+    }else{
+
+        bar.style.display="none";
+        guest.style.display="flex";
+
+    }
+
+}
+
+async function initializeAuth(){
+
+    const {data}=await supabaseClient.auth.getSession();
+
+    currentUser=data.session ? data.session.user : null;
+
+    updateAccountBar();
+
+    supabaseClient.auth.onAuthStateChange((_event,session)=>{
+
+        currentUser=session ? session.user : null;
+
+        updateAccountBar();
+
+    });
 
 }
 
@@ -2679,6 +3206,8 @@ INITIALIZE
 ============================== */
 
 applyLanguage();
+updateAuthForm();
+initializeAuth();
 
 </script>
 
