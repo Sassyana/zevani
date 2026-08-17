@@ -1,0 +1,48 @@
+name: Force ZEVANI Login Mode
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  fix:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inject capture-phase login controller
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          marker='<!-- ZEVANI LOGIN MODE CONTROLLER -->'
+          if marker not in s:
+              code=r'''<!-- ZEVANI LOGIN MODE CONTROLLER -->
+<script>
+(function(){
+  function loginController(e){
+    var b=e.target.closest && e.target.closest('button');
+    if(!b) return;
+    var text=(b.textContent||'').trim().replace(/\s+/g,' ');
+    if(text !== 'Log In') return;
+    e.preventDefault();
+    e.stopPropagation();
+    if(e.stopImmediatePropagation) e.stopImmediatePropagation();
+    if(typeof window.showAuth==='function') window.showAuth('login');
+  }
+  document.addEventListener('click',loginController,true);
+})();
+</script>
+'''
+              s=s.replace('</body>',code+'</body>')
+              p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --quiet || git commit -m "Force Log In button to use login mode"
+          git push
