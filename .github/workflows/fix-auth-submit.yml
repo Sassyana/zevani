@@ -1,0 +1,73 @@
+name: Fix ZEVANI Auth Submit
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  fix-auth:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install single auth submit controller
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          marker='<!-- ZEVANI AUTH SUBMIT CONTROLLER -->'
+          if marker not in s:
+              code=r'''<!-- ZEVANI AUTH SUBMIT CONTROLLER -->
+<script>
+(function(){
+  async function handleAuthSubmit(e){
+    var form=e.target;
+    if(!form || form.id!=='zAuthForm') return;
+    e.preventDefault();
+    e.stopPropagation();
+    if(e.stopImmediatePropagation) e.stopImmediatePropagation();
+    var c=(typeof window.sup==='function') ? window.sup() : null;
+    if(!c || !c.auth){
+      var er=document.getElementById('zAuthError');
+      if(er){er.textContent='Authentication is still loading. Please try again.';er.style.display='block';}
+      return false;
+    }
+    var email=(document.getElementById('zAuthEmail')||{}).value?.trim()||'';
+    var pw=(document.getElementById('zAuthPassword')||{}).value||'';
+    var mode=window.mode||'register';
+    var er=document.getElementById('zAuthError'), ok=document.getElementById('zAuthSuccess');
+    if(er) er.style.display='none'; if(ok) ok.style.display='none';
+    if(mode==='login'){
+      var q=await c.auth.signInWithPassword({email:email,password:pw});
+      if(q.error){if(er){er.textContent=q.error.message;er.style.display='block';}return false;}
+      var modal=document.getElementById('zevaniAuthModal'); if(modal) modal.classList.remove('show');
+      if(typeof window.openZevaniDashboard==='function') window.openZevaniDashboard();
+      else if(typeof window.openDashboard==='function') window.openDashboard();
+      else {var d=document.getElementById('zevaniDashboard');if(d)d.classList.add('active');}
+      return false;
+    }
+    if(pw!==((document.getElementById('zAuthConfirm')||{}).value||'')){
+      if(er){er.textContent='Your passwords do not match.';er.style.display='block';}return false;
+    }
+    var name=(document.getElementById('zAuthName')||{}).value?.trim()||'';
+    var q=await c.auth.signUp({email:email,password:pw,options:{data:{name:name||email.split('@')[0]},emailRedirectTo:location.href}});
+    if(q.error){if(er){er.textContent=q.error.message;er.style.display='block';}}
+    else if(ok){ok.textContent='Account created! Check your email and click the verification link. Then use Log In.';ok.style.display='block';}
+    return false;
+  }
+  document.addEventListener('submit',handleAuthSubmit,true);
+})();
+</script>
+'''
+              s=s.replace('</body>',code+'</body>')
+              p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit auth fix
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --quiet || git commit -m "Fix login form to sign in instead of register"
+          git push
