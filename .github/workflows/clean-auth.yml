@@ -1,0 +1,181 @@
+name: Clean ZEVANI Authentication
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  clean-auth:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Replace duplicate auth/dashboard tail
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          marker='<!-- ZEVANI DASHBOARD V1 -->'
+          if marker not in s:
+              raise SystemExit('Dashboard marker not found; refusing to modify index.html')
+          head=s.split(marker,1)[0]
+          tail=r'''<!-- ZEVANI CLEAN AUTH + DASHBOARD -->
+<style>
+#zevaniDashboard{display:none;min-height:100vh;padding:120px 7% 70px;background:var(--cream)}
+#zevaniDashboard.active{display:block}
+</style>
+
+<section id="zevaniDashboard">
+  <div class="dashboard-container">
+    <div class="dashboard-top">
+      <div><div class="dashboard-label">Your ZEVANI space</div><h1>Welcome back.</h1><p class="dashboard-muted">Everything about your companion, all in one place.</p></div>
+      <button class="back-button" type="button" onclick="closeZevaniDashboard()">← Back</button>
+    </div>
+    <div class="dashboard-grid">
+      <div class="dashboard-card">
+        <h2>Your companion</h2><p class="dashboard-muted">Your personalized companion is ready to talk, remember and grow with you.</p>
+        <div class="dashboard-companion"><div class="dashboard-avatar" id="zdashAvatar">A</div><div><div class="dashboard-type" id="zdashType">Romantic</div><div class="dashboard-name" id="zdashName">Alex</div><p class="dashboard-muted">Your connection is just getting started.</p></div></div>
+        <div class="dashboard-actions">
+          <button class="dashboard-action" type="button" onclick="closeZevaniDashboard();openChat()"><span>💬</span>Continue chatting</button>
+          <button class="dashboard-action" type="button" onclick="closeZevaniDashboard();startBuilder()"><span>✨</span>Manage companion</button>
+          <button class="dashboard-action" type="button" onclick="closeZevaniDashboard();showProfilePage()"><span>👤</span>My profile</button>
+          <button class="dashboard-action" type="button" onclick="alert('Your companion will build memories here as you chat.')"><span>🧠</span>Memories</button>
+        </div>
+      </div>
+      <div>
+        <div class="dashboard-card"><h2>Relationship</h2><p class="dashboard-muted">Your connection is growing.</p><div class="dashboard-progress"><i></i></div><strong style="color:var(--navy)">Getting to know each other</strong><p class="dashboard-muted" style="font-size:13px;margin-top:7px">Keep chatting to unlock more personalization.</p></div>
+        <div class="dashboard-card" style="margin-top:22px"><h2>Recent memories</h2><div class="dashboard-memory">💭 Your companion is waiting to learn what makes you smile.</div><div class="dashboard-memory">💭 Your interests and preferences will appear here.</div><div class="dashboard-memory">💭 Important moments can become lasting memories.</div></div>
+      </div>
+    </div>
+    <div class="dashboard-daily"><div class="dashboard-label">Today's thought</div><div style="font-family:Georgia,serif;font-size:22px;line-height:1.45;margin-top:8px">“The best conversations are the ones where you can simply be yourself.”</div></div>
+  </div>
+</section>
+
+<script>
+(function(){
+  const SUPABASE_URL='https://hfdembdqzsedjbgemtdp.supabase.co';
+  const SUPABASE_KEY='sb_publishable_NZAxQrtZ-sssoeIGVySf3w_1c0Io_xu';
+  const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+  let authMode='register';
+  let currentUser=null;
+  window.zevaniSupabase=sb;
+
+  function page(id){const x=document.getElementById(id);if(x)x.classList.remove('hidden');}
+  function hide(id){const x=document.getElementById(id);if(x){x.classList.add('hidden');x.classList.remove('active')}}
+  function hidePages(){['homePage','betaPage','builderPage','profilePage','chatPage','authPage'].forEach(hide);hide('zevaniDashboard')}
+  function clearMessages(){['authError','authSuccess'].forEach(id=>{const x=document.getElementById(id);if(x){x.textContent='';x.style.display='none'}})}
+  function message(id,text){const x=document.getElementById(id);if(x){x.textContent=text;x.style.display='block'}}
+
+  function updateAuthForm(){
+    const register=authMode==='register';
+    const label=document.getElementById('authLabel'),title=document.getElementById('authTitle'),text=document.getElementById('authText');
+    const name=document.getElementById('authName'),confirm=document.getElementById('authPasswordConfirm'),submit=document.getElementById('authSubmitText');
+    const switchText=document.getElementById('authSwitchText'),switchButton=document.getElementById('authSwitchButton');
+    if(label)label.textContent=register?'CREATE YOUR ACCOUNT':'LOG IN';
+    if(title)title.textContent=register?'Join ZEVANI.':'Welcome back.';
+    if(text)text.textContent=register?'Create your private member account and save your ZEVANI companion.':'Log in to continue to your ZEVANI account.';
+    if(name){name.style.display=register?'block':'none';name.required=false}
+    if(confirm){confirm.style.display=register?'block':'none';confirm.required=register}
+    const pass=document.getElementById('authPassword');if(pass)pass.autocomplete=register?'new-password':'current-password';
+    if(submit)submit.textContent=register?'Create Account':'Log In';
+    if(switchText)switchText.textContent=register?'Already have an account?':"Don't have an account yet?";
+    if(switchButton)switchButton.textContent=register?'Log in':'Create one';
+  }
+
+  window.showAuth=function(mode){
+    authMode=mode==='login'?'login':'register';
+    hidePages();
+    page('authPage');
+    clearMessages();
+    const form=document.getElementById('authForm');if(form)form.reset();
+    updateAuthForm();
+    window.scrollTo(0,0);
+  };
+
+  window.toggleAuthMode=function(){authMode=authMode==='register'?'login':'register';clearMessages();const f=document.getElementById('authForm');if(f)f.reset();updateAuthForm()};
+
+  window.handleAuthSubmit=async function(event){
+    event.preventDefault();
+    event.stopPropagation();
+    clearMessages();
+    const email=document.getElementById('authEmail').value.trim();
+    const pass=document.getElementById('authPassword').value;
+    const name=(document.getElementById('authName').value||'').trim();
+    const confirm=(document.getElementById('authPasswordConfirm').value||'');
+    const btn=document.getElementById('authSubmit');
+    btn.disabled=true;
+    try{
+      if(authMode==='register'){
+        if(pass!==confirm){message('authError','Your passwords do not match.');return;}
+        const result=await sb.auth.signUp({email:email,password:pass,options:{data:{name:name||email.split('@')[0]},emailRedirectTo:location.href}});
+        if(result.error)throw result.error;
+        if(result.data.session){currentUser=result.data.user;finishLogin();}
+        else message('authSuccess','Account created! Check your email and click the verification link. Then use Log In.');
+      }else{
+        const result=await sb.auth.signInWithPassword({email:email,password:pass});
+        if(result.error)throw result.error;
+        currentUser=result.data.user;
+        finishLogin();
+      }
+    }catch(err){message('authError',err.message||'Unable to complete authentication.');}
+    finally{btn.disabled=false}
+  };
+
+  function updateAccountUI(){
+    const guest=document.getElementById('guestAuthButtons'),bar=document.getElementById('accountBar'),dash=document.getElementById('zevaniDashboardButton');
+    if(currentUser){
+      if(guest)guest.style.display='none';
+      if(bar)bar.style.display='flex';
+      const email=document.getElementById('accountEmail');if(email)email.textContent=currentUser.email||'';
+      if(dash)dash.style.display='inline-block';
+    }else{
+      if(guest)guest.style.display='flex';
+      if(bar)bar.style.display='none';
+      if(dash)dash.style.display='none';
+    }
+  }
+
+  function finishLogin(){
+    if(!currentUser)return;
+    localStorage.setItem('zevaniUserEmail',currentUser.email||'');
+    localStorage.setItem('zevaniUserName',(currentUser.user_metadata&&currentUser.user_metadata.name)||currentUser.email.split('@')[0]);
+    updateAccountUI();
+    openZevaniDashboard();
+  }
+
+  window.logoutUser=async function(){await sb.auth.signOut();currentUser=null;updateAccountUI();showHome()};
+
+  window.openZevaniDashboard=function(){
+    if(!currentUser){showAuth('login');return;}
+    hidePages();
+    const d=document.getElementById('zevaniDashboard');if(d)d.classList.add('active');
+    const n=localStorage.getItem('zevaniCompanionName')||'Alex',t=localStorage.getItem('zevaniCompanionType')||'Romantic';
+    const name=document.getElementById('zdashName'),type=document.getElementById('zdashType'),avatar=document.getElementById('zdashAvatar');
+    if(name)name.textContent=n;if(type)type.textContent=t;if(avatar)avatar.textContent=n.charAt(0).toUpperCase();
+    window.scrollTo(0,0);
+  };
+  window.closeZevaniDashboard=function(){showHome()};
+  window.showProfilePage=function(){if(typeof currentUser==='undefined'||currentUser) {hidePages();page('profilePage');window.scrollTo(0,0)}};
+
+  const dashboardButton=document.getElementById('zevaniDashboardButton');
+  if(dashboardButton)dashboardButton.onclick=function(e){e.preventDefault();openZevaniDashboard()};
+
+  sb.auth.getSession().then(({data})=>{currentUser=data.session?data.session.user:null;updateAccountUI()});
+  sb.auth.onAuthStateChange((_event,session)=>{currentUser=session?session.user:null;updateAccountUI()});
+  updateAuthForm();
+})();
+</script>
+</body>
+</html>
+'''
+          p.write_text(head+tail,encoding='utf-8')
+          PY
+      - name: Commit cleaned index
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --quiet || git commit -m "Clean up duplicate authentication and dashboard code"
+          git push
