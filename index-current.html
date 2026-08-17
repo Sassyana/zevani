@@ -2864,5 +2864,92 @@ applyLanguage();
 <div><div class="zdash-card"><h2>Relationship</h2><p class="zdash-muted">Your connection is growing.</p><div class="zdash-progress"><i></i></div><strong style="color:var(--navy)">Getting to know each other</strong><p class="zdash-muted" style="font-size:13px;margin-top:7px">Keep chatting to unlock more personalization.</p></div><div class="zdash-card" style="margin-top:22px"><h2>Recent memories</h2><div class="zdash-memory">💭 Your companion is waiting to learn what makes you smile.</div><div class="zdash-memory">💭 Your interests and preferences will appear here.</div><div class="zdash-memory">💭 Important moments can become lasting memories.</div></div></div>
 </div><div class="zdash-daily"><div class="zdash-label">Today's thought</div><div style="font-family:Georgia,serif;font-size:22px;line-height:1.45;margin-top:8px">“The best conversations are the ones where you can simply be yourself.”</div></div>
 </div></section>
+<script>
+/* ZEVANI LOGIN HANDLER V3 */
+(function(){
+  const SUPABASE_URL='https://hfdembdqzsedjbgemtdp.supabase.co';
+  const SUPABASE_KEY='sb_publishable_NZAxQrtZ-sssoeIGVySf3w_1c0Io_xu';
+  function client(){
+    if(!window.supabase || typeof window.supabase.createClient!=='function') return null;
+    if(!window.zevaniLoginClient) window.zevaniLoginClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+    return window.zevaniLoginClient;
+  }
+  function pages(){return ['homePage','betaPage','builderPage','profilePage','chatPage','authPage','zevaniDashboard'];}
+  function hideAll(){pages().forEach(id=>{const e=document.getElementById(id);if(e){e.classList.add('hidden');e.classList.remove('active')}})}
+  function setText(id,text){const e=document.getElementById(id);if(e)e.textContent=text}
+  function setMode(mode){
+    window.zevaniAuthMode=mode;
+    const register=mode==='register';
+    setText('authLabel',register?'CREATE YOUR ACCOUNT':'LOG IN');
+    setText('authTitle',register?'Join ZEVANI.':'Welcome back.');
+    setText('authText',register?'Create your private member account and save your ZEVANI companion.':'Log in to continue to your ZEVANI account.');
+    const name=document.getElementById('authName'), confirm=document.getElementById('authPasswordConfirm');
+    if(name)name.style.display=register?'block':'none';
+    if(confirm)confirm.style.display=register?'block':'none';
+    const pass=document.getElementById('authPassword');if(pass)pass.autocomplete=register?'new-password':'current-password';
+    setText('authSubmitText',register?'Create Account':'Log In');
+    setText('authSwitchText',register?'Already have an account?':'Don\'t have an account yet?');
+    setText('authSwitchButton',register?'Log in':'Create one');
+  }
+  function clearMessages(){['authError','authSuccess'].forEach(id=>{const e=document.getElementById(id);if(e){e.textContent='';e.style.display='none'}})}
+  function openAuth(mode){
+    hideAll();
+    const auth=document.getElementById('authPage');
+    if(!auth)return;
+    auth.classList.remove('hidden');
+    setMode(mode||'register');
+    clearMessages();
+    window.scrollTo(0,0);
+  }
+  window.showAuth=function(mode){openAuth(mode||'register')};
+  window.toggleAuthMode=function(){openAuth(window.zevaniAuthMode==='register'?'login':'register')};
+  window.handleAuthSubmit=async function(event){
+    event.preventDefault();
+    clearMessages();
+    const email=(document.getElementById('authEmail')||{}).value?.trim()||'';
+    const password=(document.getElementById('authPassword')||{}).value||'';
+    const name=(document.getElementById('authName')||{}).value?.trim()||'';
+    const confirm=(document.getElementById('authPasswordConfirm')||{}).value||'';
+    const button=document.getElementById('authSubmit');
+    const sb=client();
+    if(!sb){const e=document.getElementById('authError');if(e){e.textContent='Login service is still loading. Please try again.';e.style.display='block'}return}
+    if(window.zevaniAuthMode==='register' && password!==confirm){const e=document.getElementById('authError');if(e){e.textContent='Your passwords do not match.';e.style.display='block'}return}
+    if(button)button.disabled=true;
+    try{
+      let result;
+      if(window.zevaniAuthMode==='register'){
+        result=await sb.auth.signUp({email,password,options:{data:{name:name||email.split('@')[0]},emailRedirectTo:location.href}});
+      }else{
+        result=await sb.auth.signInWithPassword({email,password});
+      }
+      if(result.error)throw result.error;
+      if(window.zevaniAuthMode==='register' && !result.data.session){
+        const ok=document.getElementById('authSuccess');if(ok){ok.textContent='Account created! Check your email, verify it, then log in.';ok.style.display='block'}
+        return;
+      }
+      const user=result.data.user;
+      if(user){localStorage.setItem('zevaniUserEmail',user.email||'');localStorage.setItem('zevaniUserName',(user.user_metadata&&user.user_metadata.name)||((user.email||'').split('@')[0]));}
+      if(typeof window.openZevaniDashboard==='function')window.openZevaniDashboard();
+      else if(typeof window.openDashboard==='function')window.openDashboard();
+      else {hideAll();const dash=document.getElementById('zevaniDashboard');if(dash){dash.classList.remove('hidden');dash.classList.add('active')}}
+    }catch(err){const e=document.getElementById('authError');if(e){e.textContent=err.message||'Login failed. Please check your email and password.';e.style.display='block'}}
+    finally{if(button)button.disabled=false}
+  };
+  function wire(){
+    const form=document.getElementById('authForm');
+    if(form)form.onsubmit=window.handleAuthSubmit;
+    document.querySelectorAll('button,a').forEach(el=>{
+      if(el.dataset.zevaniLoginWired)return;
+      const text=(el.textContent||'').trim();
+      if(/^log\s*in$/i.test(text)){
+        el.dataset.zevaniLoginWired='1';
+        el.addEventListener('click',function(e){e.preventDefault();e.stopImmediatePropagation();openAuth('login')},true);
+      }
+    });
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',wire);else wire();
+  setTimeout(wire,250);setTimeout(wire,1000);
+})();
+</script>
 </body>
 </html>
