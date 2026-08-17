@@ -2,23 +2,26 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>ZEVANI — Personalized AI Companionship</title>
 <style>
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#f7f4ed}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#f7f4ed;font-family:Arial,Helvetica,sans-serif;color:#202633}
 #zevaniApp{display:block;width:100%;height:100%;border:0}
-#zevaniLoginModal{position:fixed;inset:0;z-index:999999;display:none;align-items:center;justify-content:center;background:rgba(16,26,45,.72);padding:20px;box-sizing:border-box}
-#zevaniLoginModal.show{display:flex}
-.z-login-card{width:min(500px,100%);background:#fff;border-radius:30px;padding:40px;box-shadow:0 30px 90px rgba(0,0,0,.3);box-sizing:border-box}
-.z-login-label{color:#c7a86b;text-transform:uppercase;letter-spacing:3px;font-size:11px;font-weight:bold}
-.z-login-card h2{font-family:Georgia,serif;font-size:42px;font-weight:normal;color:#101a2d;margin:12px 0}
-.z-login-card p{color:#707887;line-height:1.6;margin-bottom:22px}
-.z-login-input{width:100%;padding:16px;border:1px solid #e4dfd5;border-radius:14px;font-size:15px;box-sizing:border-box;margin-bottom:12px;outline:none}
-.z-login-input:focus{border-color:#c7a86b}
-.z-login-error{display:none;background:#fff0ef;color:#a94442;padding:12px;border-radius:12px;font-size:13px;margin-bottom:14px}
-.z-login-button{width:100%;border:0;background:#101a2d;color:#fff;padding:16px;border-radius:30px;font-weight:bold;font-size:15px;cursor:pointer}
-.z-login-button:disabled{opacity:.65;cursor:wait}
-.z-login-back{width:100%;margin-top:12px;background:#fff;border:1px solid #c9c3b6;color:#101a2d;padding:14px;border-radius:30px;font-weight:bold;cursor:pointer}
+#zevaniLoginModal,#zevaniDashboardOverlay{position:fixed;inset:0;z-index:999999;display:none;align-items:center;justify-content:center;background:rgba(16,26,45,.72);padding:20px;box-sizing:border-box}
+#zevaniLoginModal.show,#zevaniDashboardOverlay.show{display:flex}
+.z-card{width:min(520px,100%);background:#fff;border-radius:30px;padding:40px;box-shadow:0 30px 90px rgba(0,0,0,.3);box-sizing:border-box}
+.z-label{color:#c7a86b;text-transform:uppercase;letter-spacing:3px;font-size:11px;font-weight:bold}
+.z-card h1,.z-card h2{font-family:Georgia,serif;font-weight:normal;color:#101a2d;margin:12px 0}
+.z-card h2{font-size:42px}.z-card h1{font-size:44px}
+.z-card p{color:#707887;line-height:1.6}
+.z-input{width:100%;padding:16px;border:1px solid #e4dfd5;border-radius:14px;font-size:15px;box-sizing:border-box;margin-bottom:12px;outline:none}.z-input:focus{border-color:#c7a86b}
+.z-error{display:none;background:#fff0ef;color:#a94442;padding:12px;border-radius:12px;font-size:13px;margin-bottom:14px}
+.z-primary,.z-secondary{width:100%;padding:15px 20px;border-radius:30px;font-weight:bold;font-size:15px;cursor:pointer}
+.z-primary{border:0;background:#101a2d;color:#fff}.z-secondary{margin-top:12px;background:#fff;border:1px solid #c9c3b6;color:#101a2d}
+.z-account{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:25px;padding:15px 18px;background:#f7f4ed;border-radius:18px}.z-account strong{color:#101a2d}.z-account span{color:#707887;font-size:13px}
+.z-logout{border:1px solid #c9c3b6;background:#fff;color:#101a2d;padding:10px 16px;border-radius:22px;font-weight:bold;cursor:pointer;white-space:nowrap}
+.z-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:25px}.z-action{border:1px solid #e4dfd5;background:#fff;border-radius:18px;padding:18px;text-align:left;color:#101a2d;font-weight:bold;cursor:pointer}.z-action span{display:block;color:#707887;font-size:12px;font-weight:normal;margin-top:5px}
+@media(max-width:600px){.z-card{padding:28px 20px}.z-actions{grid-template-columns:1fr}.z-account{align-items:flex-start;flex-direction:column}.z-logout{width:100%}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -26,130 +29,63 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#f7f4ed}
 <iframe id="zevaniApp" src="index-current.html" title="ZEVANI"></iframe>
 
 <div id="zevaniLoginModal" aria-hidden="true">
-  <div class="z-login-card">
-    <div class="z-login-label">ZEVANI</div>
-    <h2>Welcome back.</h2>
-    <p>Log in to continue to your ZEVANI account.</p>
-    <div id="zLoginError" class="z-login-error"></div>
-    <form id="zLoginForm">
-      <input id="zLoginEmail" class="z-login-input" type="email" autocomplete="email" placeholder="Email address" required>
-      <input id="zLoginPassword" class="z-login-input" type="password" autocomplete="current-password" placeholder="Password" required>
-      <button id="zLoginSubmit" class="z-login-button" type="submit">Log In</button>
-    </form>
-    <button id="zLoginBack" class="z-login-back" type="button">← Back</button>
-  </div>
+<div class="z-card">
+<div class="z-label">ZEVANI</div><h2>Welcome back.</h2><p>Log in to continue to your ZEVANI account.</p>
+<div id="zLoginError" class="z-error"></div>
+<form id="zLoginForm">
+<input id="zLoginEmail" class="z-input" type="email" autocomplete="email" placeholder="Email address" required>
+<input id="zLoginPassword" class="z-input" type="password" autocomplete="current-password" placeholder="Password" required>
+<button id="zLoginSubmit" class="z-primary" type="submit">Log In</button>
+</form>
+<button id="zLoginBack" class="z-secondary" type="button">← Back</button>
+</div></div>
+
+<div id="zevaniDashboardOverlay" aria-hidden="true">
+<div class="z-card">
+<div class="z-label">YOUR ZEVANI SPACE</div>
+<h1 id="zWelcomeName">Welcome back, Ana.</h1>
+<p>Your ZEVANI account is ready. This is your private companion space.</p>
+<div class="z-account"><div><strong id="zAccountName">Ana</strong><br><span id="zAccountEmail"></span></div><button id="zLogout" class="z-logout" type="button">Log Out</button></div>
+<div class="z-actions">
+<button class="z-action" id="zChat" type="button">💬 Continue chatting<span>Return to your companion.</span></button>
+<button class="z-action" id="zManage" type="button">✨ Manage companion<span>Customize your companion.</span></button>
+<button class="z-action" id="zProfile" type="button">👤 My profile<span>View your companion profile.</span></button>
+<button class="z-action" id="zCloseDash" type="button">← Back to ZEVANI<span>Return to the main site.</span></button>
 </div>
+</div></div>
 
 <script>
 (function(){
-  const SUPABASE_URL='https://hfdembdqzsedjbgemtdp.supabase.co';
-  const SUPABASE_KEY='sb_publishable_NZAxQrtZ-sssoeIGVySf3w_1c0Io_xu';
-  const frame=document.getElementById('zevaniApp');
-  const modal=document.getElementById('zevaniLoginModal');
-  const form=document.getElementById('zLoginForm');
-  const email=document.getElementById('zLoginEmail');
-  const password=document.getElementById('zLoginPassword');
-  const error=document.getElementById('zLoginError');
-  const submit=document.getElementById('zLoginSubmit');
-  const back=document.getElementById('zLoginBack');
-  const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-
-  function openLogin(){
-    error.style.display='none';
-    error.textContent='';
-    modal.classList.add('show');
-    modal.setAttribute('aria-hidden','false');
-    setTimeout(()=>email.focus(),50);
-  }
-
-  function closeLogin(){
-    modal.classList.remove('show');
-    modal.setAttribute('aria-hidden','true');
-  }
-
-  function goToDashboard(){
-    try{
-      const w=frame.contentWindow;
-      if(w && typeof w.openDashboard==='function'){
-        w.openDashboard();
-        return;
-      }
-      const d=frame.contentDocument;
-      if(d){
-        ['homePage','betaPage','builderPage','profilePage','chatPage','authPage'].forEach(id=>{
-          const el=d.getElementById(id);
-          if(el) el.classList.add('hidden');
-        });
-        const dash=d.getElementById('zevaniDashboard');
-        if(dash){dash.classList.remove('hidden');dash.classList.add('active');}
-      }
-    }catch(e){}
-  }
-
-  window.zevaniOpenLogin=openLogin;
-  window.zevaniCloseLogin=closeLogin;
-
-  function wireFrame(){
-    let d,w;
-    try{d=frame.contentDocument;w=frame.contentWindow;}catch(e){return;}
-    if(!d||!d.body||!w)return;
-
-    w.showAuth=function(mode){
-      if(mode==='login') openLogin();
-      else if(typeof w.toggleAuthMode==='function') w.toggleAuthMode();
-      else openLogin();
-    };
-
-    d.addEventListener('click',function(ev){
-      let el=ev.target;
-      while(el && el!==d.body && el.tagName!=='BUTTON' && el.tagName!=='A') el=el.parentElement;
-      if(!el)return;
-      const text=(el.textContent||'').replace(/\s+/g,' ').trim();
-      if(/^log\s*in$/i.test(text) || /^log\s*in\s*to/i.test(text)){
-        ev.preventDefault();
-        ev.stopPropagation();
-        ev.stopImmediatePropagation();
-        openLogin();
-      }
-    },true);
-  }
-
-  frame.addEventListener('load',function(){
-    wireFrame();
-    setTimeout(wireFrame,300);
-    setTimeout(wireFrame,1000);
-  });
-
-  back.addEventListener('click',closeLogin);
-  modal.addEventListener('click',function(e){if(e.target===modal)closeLogin();});
-
-  form.addEventListener('submit',async function(e){
-    e.preventDefault();
-    error.style.display='none';
-    submit.disabled=true;
-    submit.textContent='Logging in…';
-    try{
-      const result=await supabaseClient.auth.signInWithPassword({
-        email:email.value.trim(),
-        password:password.value
-      });
-      if(result.error) throw result.error;
-      const user=result.data && result.data.user;
-      if(user){
-        localStorage.setItem('zevaniUserEmail',user.email||'');
-        localStorage.setItem('zevaniUserName',(user.user_metadata&&user.user_metadata.name)||((user.email||'').split('@')[0]));
-      }
-      closeLogin();
-      setTimeout(goToDashboard,100);
-    }catch(err){
-      error.textContent=err && err.message ? err.message : 'Login failed. Please check your email and password.';
-      error.style.display='block';
-    }finally{
-      submit.disabled=false;
-      submit.textContent='Log In';
-    }
-  });
+const URL='https://hfdembdqzsedjbgemtdp.supabase.co';
+const KEY='sb_publishable_NZAxQrtZ-sssoeIGVySf3w_1c0Io_xu';
+const sb=window.supabase.createClient(URL,KEY);
+const frame=document.getElementById('zevaniApp');
+const login=document.getElementById('zevaniLoginModal');
+const dash=document.getElementById('zevaniDashboardOverlay');
+const email=document.getElementById('zLoginEmail');
+const password=document.getElementById('zLoginPassword');
+const error=document.getElementById('zLoginError');
+const submit=document.getElementById('zLoginSubmit');
+let user=null;
+function nameOf(u){return (u&&u.user_metadata&&u.user_metadata.name)||((u&&u.email)||'').split('@')[0]||'Ana'}
+function openLogin(){error.style.display='none';error.textContent='';login.classList.add('show');login.setAttribute('aria-hidden','false');setTimeout(()=>email.focus(),50)}
+function closeLogin(){login.classList.remove('show');login.setAttribute('aria-hidden','true')}
+function showDashboard(u){user=u||user;if(!user)return;const n=nameOf(user);document.getElementById('zWelcomeName').textContent='Welcome back, '+n+'.';document.getElementById('zAccountName').textContent=n;document.getElementById('zAccountEmail').textContent=user.email||'';dash.classList.add('show');dash.setAttribute('aria-hidden','false')}
+function closeDashboard(){dash.classList.remove('show');dash.setAttribute('aria-hidden','true')}
+function resetToHome(){closeDashboard();try{const w=frame.contentWindow;if(w&&typeof w.showHome==='function')w.showHome();}catch(e){}}
+function wireFrame(){let d,w;try{d=frame.contentDocument;w=frame.contentWindow}catch(e){return}if(!d||!d.body)return;d.addEventListener('click',function(ev){let el=ev.target;while(el&&el!==d.body&&el.tagName!=='BUTTON'&&el.tagName!=='A')el=el.parentElement;if(!el)return;const text=(el.textContent||'').replace(/\s+/g,' ').trim();if(/^log\s*in$/i.test(text)||/^log\s*in\s*to/i.test(text)){ev.preventDefault();ev.stopPropagation();ev.stopImmediatePropagation();openLogin()}},true)}
+frame.addEventListener('load',()=>{wireFrame();setTimeout(wireFrame,300);setTimeout(wireFrame,1000)});
+document.getElementById('zLoginBack').onclick=closeLogin;
+login.addEventListener('click',e=>{if(e.target===login)closeLogin()});
+document.getElementById('zCloseDash').onclick=resetToHome;
+document.getElementById('zChat').onclick=()=>{closeDashboard();try{frame.contentWindow.openChat()}catch(e){}};
+document.getElementById('zManage').onclick=()=>{closeDashboard();try{frame.contentWindow.startBuilder()}catch(e){}};
+document.getElementById('zProfile').onclick=()=>{closeDashboard();try{frame.contentWindow.generateCompanion()}catch(e){}};
+document.getElementById('zLogout').onclick=async()=>{await sb.auth.signOut();user=null;localStorage.removeItem('zevaniUserEmail');localStorage.removeItem('zevaniUserName');closeDashboard();try{frame.contentWindow.showHome()}catch(e){}};
+document.getElementById('zLoginForm').addEventListener('submit',async e=>{e.preventDefault();error.style.display='none';submit.disabled=true;submit.textContent='Logging in…';try{const r=await sb.auth.signInWithPassword({email:email.value.trim(),password:password.value});if(r.error)throw r.error;user=r.data.user;localStorage.setItem('zevaniUserEmail',user.email||'');localStorage.setItem('zevaniUserName',nameOf(user));closeLogin();setTimeout(()=>showDashboard(user),100)}catch(err){error.textContent=err.message||'Login failed. Please check your email and password.';error.style.display='block'}finally{submit.disabled=false;submit.textContent='Log In'}});
+sb.auth.getSession().then(({data})=>{user=data.session&&data.session.user;if(user)localStorage.setItem('zevaniUserName',nameOf(user))});
+sb.auth.onAuthStateChange((_event,session)=>{user=session&&session.user});
+window.zevaniOpenLogin=openLogin;window.zevaniCloseLogin=closeLogin;window.zevaniShowDashboard=showDashboard;
 })();
 </script>
-\n<section id="zevaniDashboard" class="dashboard-section hidden">\n<div class="dashboard-container">\n<div class="dashboard-top"><div><div class="dashboard-label">Your ZEVANI space</div><h1>Welcome back.</h1><p class="dashboard-muted">Everything about your companion, all in one place.</p></div><button class="back-button" type="button" onclick="closeZevaniDashboard()">← Back</button></div>\n<div class="dashboard-grid">\n<div class="dashboard-card"><h2>Your companion</h2><p class="dashboard-muted">Your personalized companion is ready to talk, remember and grow with you.</p><div class="dashboard-companion"><div class="dashboard-avatar" id="zdashAvatar">A</div><div><div class="dashboard-type" id="zdashType">Romantic</div><div class="dashboard-name" id="zdashName">Alex</div><p class="dashboard-muted">Your connection is just getting started.</p></div></div><div class="dashboard-actions"><button class="dashboard-action" type="button" onclick="closeZevaniDashboard();openChat()"><span>💬</span>Continue chatting</button><button class="dashboard-action" type="button" onclick="closeZevaniDashboard();startBuilder()"><span>✨</span>Manage companion</button><button class="dashboard-action" type="button" onclick="closeZevaniDashboard();generateCompanion()"><span>👤</span>My profile</button><button class="dashboard-action" type="button" onclick="alert('Your companion will build memories here as you chat.')"><span>🧠</span>Memories</button></div></div>\n<div><div class="dashboard-card"><h2>Relationship</h2><p class="dashboard-muted">Your connection is growing.</p><div class="dashboard-progress"><i></i></div><strong style="color:var(--navy)">Getting to know each other</strong><p class="dashboard-muted" style="font-size:13px;margin-top:7px">Keep chatting to unlock more personalization.</p></div><div class="dashboard-card" style="margin-top:22px"><h2>Recent memories</h2><div class="dashboard-memory">💭 Your companion is waiting to learn what makes you smile.</div><div class="dashboard-memory">💭 Your interests and preferences will appear here.</div><div class="dashboard-memory">💭 Important moments can become lasting memories.</div></div></div>\n</div><div class="dashboard-daily"><div class="dashboard-label">Today's thought</div><div style="font-family:Georgia,serif;font-size:22px;line-height:1.45;margin-top:8px">“The best conversations are the ones where you can simply be yourself.”</div></div>\n</div></section>\n\n<script data-zevani-auth-v2>\n(function(){\nconst SUPABASE_URL="https://hfdembdqzsedjbgemtdp.supabase.co";\nconst SUPABASE_KEY="sb_publishable_NZAxQrtZ-sssoeIGVySf3w_1c0Io_xu";\nconst sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);\nlet authMode="register", currentUser=null;\nwindow.zevaniSupabase=sb;\nfunction hidePages(){["homePage","betaPage","builderPage","profilePage","chatPage","authPage","zevaniDashboard"].forEach(id=>{const x=document.getElementById(id);if(x){x.classList.add("hidden");x.classList.remove("active")}})}\nwindow.showAuth=function(mode="register"){authMode=mode;hidePages();document.getElementById("authPage").classList.remove("hidden");clearAuth();updateAuthForm();window.scrollTo(0,0)};\nwindow.toggleAuthMode=function(){authMode=authMode==="register"?"login":"register";clearAuth();updateAuthForm()};\nfunction updateAuthForm(){const r=authMode==="register";document.getElementById("authLabel").textContent=r?"CREATE YOUR ACCOUNT":"LOG IN";document.getElementById("authTitle").textContent=r?"Join ZEVANI.":"Welcome back.";document.getElementById("authText").textContent=r?"Create your private member account and save your ZEVANI companion.":"Log in to continue to your ZEVANI account.";document.getElementById("authName").style.display=r?"block":"none";document.getElementById("authPasswordConfirm").style.display=r?"block":"none";document.getElementById("authPassword").autocomplete=r?"new-password":"current-password";document.getElementById("authSubmitText").textContent=r?"Create Account":"Log In";document.getElementById("authSwitchText").textContent=r?"Already have an account?":"Don't have an account yet?";document.getElementById("authSwitchButton").textContent=r?"Log in":"Create one"}\nfunction clearAuth(){["authError","authSuccess"].forEach(id=>{const x=document.getElementById(id);x.textContent="";x.style.display="none"})}\nfunction msg(id,text){const x=document.getElementById(id);x.textContent=text;x.style.display="block"}\nwindow.handleAuthSubmit=async function(e){e.preventDefault();clearAuth();const email=document.getElementById("authEmail").value.trim();const pass=document.getElementById("authPassword").value;const name=document.getElementById("authName").value.trim();const confirm=document.getElementById("authPasswordConfirm").value;const btn=document.getElementById("authSubmit");btn.disabled=true;try{if(authMode==="register"){if(pass!==confirm){msg("authError","Your passwords do not match.");return}const {data,error}=await sb.auth.signUp({email,password:pass,options:{data:{name:name||email.split("@")[0]},emailRedirectTo:location.origin+location.pathname}});if(error)throw error;if(data.session){currentUser=data.user;finishLogin()}else{msg("authSuccess","Account created! Check your email and click the verification link before logging in.")}}else{const {data,error}=await sb.auth.signInWithPassword({email,password:pass});if(error)throw error;currentUser=data.user;finishLogin()}}catch(err){msg("authError",err.message||"Something went wrong. Please try again.")}finally{btn.disabled=false}};\nfunction finishLogin(){const u=currentUser;if(!u)return;localStorage.setItem("zevaniUserEmail",u.email||"");const n=(u.user_metadata&&u.user_metadata.name)||u.email.split("@")[0];localStorage.setItem("zevaniUserName",n);updateAccountUI();openZevaniDashboard()}\nfunction updateAccountUI(){const guest=document.getElementById("guestAuthButtons"),bar=document.getElementById("accountBar"),dash=document.getElementById("zevaniDashboardButton");if(currentUser){guest.style.display="none";bar.style.display="flex";document.getElementById("accountEmail").textContent=currentUser.email||"";dash.style.display="inline-block"}else{guest.style.display="flex";bar.style.display="none";dash.style.display="none"}}\nwindow.logoutUser=async function(){await sb.auth.signOut();currentUser=null;updateAccountUI();showHome()};\nwindow.openZevaniDashboard=function(){if(!currentUser){showAuth("login");return}hidePages();const d=document.getElementById("zevaniDashboard");d.classList.remove("hidden");let n=localStorage.getItem("zevaniCompanionName")||"Alex",t=localStorage.getItem("zevaniCompanionType")||"Romantic";document.getElementById("zdashName").textContent=n;document.getElementById("zdashType").textContent=t;document.getElementById("zdashAvatar").textContent=n.charAt(0).toUpperCase();window.scrollTo(0,0)};\nwindow.closeZevaniDashboard=function(){showHome()};\nconst db=document.getElementById("zevaniDashboardButton");if(db)db.addEventListener("click",function(e){e.preventDefault();openZevaniDashboard()});\nconst oldGenerate=window.generateCompanion;\nconst oldStart=window.startBuilder;\nwindow.startBuilder=function(type){if(!currentUser){showAuth("login");return}return oldStart(type)};\nwindow.generateCompanion=function(){const r=oldGenerate();localStorage.setItem("zevaniCompanionName",(window.companion&&companion.name)||document.getElementById("profileName").textContent||"Alex");localStorage.setItem("zevaniCompanionType",(window.companion&&companion.type)||document.getElementById("profileType").textContent||"Romantic");return r};\nsb.auth.getSession().then(({data})=>{currentUser=data.session&&data.session.user;updateAccountUI();if(currentUser){const n=(currentUser.user_metadata&&currentUser.user_metadata.name)||currentUser.email.split("@")[0];localStorage.setItem("zevaniUserName",n)}});\nsb.auth.onAuthStateChange((_event,session)=>{currentUser=session&&session.user;updateAccountUI()});\n})();\n</script>\n</body>
-</html>
+</body></html>
