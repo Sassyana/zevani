@@ -1,0 +1,134 @@
+name: Final ZEVANI Authentication Fix
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  fix-auth:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install clean authentication handler
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          marker='<!-- ZEVANI FINAL AUTH -->'
+          if marker not in s:
+              code=r'''<!-- ZEVANI FINAL AUTH -->
+<style>
+#zFinalAuth{display:none;position:fixed;inset:0;z-index:99999;background:rgba(16,26,45,.78);align-items:center;justify-content:center;padding:20px}
+#zFinalAuth.show{display:flex}
+#zFinalAuth .box{width:min(500px,100%);background:#fff;border-radius:28px;padding:36px;box-shadow:0 30px 90px rgba(0,0,0,.35)}
+#zFinalAuth h2{font-family:Georgia,serif;font-weight:normal;font-size:40px;color:#101a2d;margin:10px 0 14px}
+#zFinalAuth p{color:#707887;line-height:1.55;margin-bottom:20px}
+#zFinalAuth input{width:100%;padding:15px;border:1px solid #e4dfd5;border-radius:14px;margin-bottom:12px;font-size:15px;box-sizing:border-box}
+#zFinalAuth .msg{display:none;padding:11px 13px;border-radius:10px;margin-bottom:12px;font-size:13px}
+#zFinalAuth .err{background:#fff0ef;color:#a94442}
+#zFinalAuth .ok{background:#edf8ef;color:#3d7d4a}
+#zFinalAuth .close{float:right;border:0;background:none;font-size:28px;color:#707887;cursor:pointer}
+#zFinalAuth .switch{border:0;background:none;color:#9a7d4b;font-weight:bold;cursor:pointer}
+</style>
+<div id="zFinalAuth">
+  <div class="box">
+    <button class="close" id="zFinalClose" type="button">×</button>
+    <div class="label" id="zFinalLabel">CREATE YOUR ACCOUNT</div>
+    <h2 id="zFinalTitle">Join ZEVANI.</h2>
+    <p id="zFinalText">Create your private ZEVANI account.</p>
+    <div id="zFinalErr" class="msg err"></div>
+    <div id="zFinalOk" class="msg ok"></div>
+    <form id="zFinalForm">
+      <input id="zFinalName" placeholder="Your name" autocomplete="name">
+      <input id="zFinalEmail" type="email" required placeholder="Email address" autocomplete="email">
+      <input id="zFinalPassword" type="password" required minlength="6" placeholder="Password (at least 6 characters)" autocomplete="current-password">
+      <input id="zFinalConfirm" type="password" required minlength="6" placeholder="Confirm password" autocomplete="new-password">
+      <button id="zFinalSubmit" class="primary" type="submit" style="width:100%">Create Account</button>
+    </form>
+    <div style="text-align:center;margin-top:18px;font-size:13px"><span id="zFinalSwitchText">Already have an account?</span> <button id="zFinalSwitch" class="switch" type="button">Log in</button></div>
+  </div>
+</div>
+<script>
+(function(){
+  var mode='register', client=null, currentUser=null;
+  function getClient(){
+    if(!client && window.supabase){client=window.supabase.createClient('https://hfdembdqzsedjbgemtdp.supabase.co','sb_publishable_NZAxQrtZ-sssoeIGVySf3w_1c0Io_xu');}
+    return client;
+  }
+  function setMode(){
+    var reg=mode==='register';
+    document.getElementById('zFinalLabel').textContent=reg?'CREATE YOUR ACCOUNT':'LOG IN';
+    document.getElementById('zFinalTitle').textContent=reg?'Join ZEVANI.':'Welcome back.';
+    document.getElementById('zFinalText').textContent=reg?'Create your private ZEVANI account.':'Log in to access your ZEVANI dashboard.';
+    document.getElementById('zFinalName').style.display=reg?'block':'none';
+    document.getElementById('zFinalConfirm').style.display=reg?'block':'none';
+    document.getElementById('zFinalSubmit').textContent=reg?'Create Account':'Log In';
+    document.getElementById('zFinalSwitchText').textContent=reg?'Already have an account?':"Don't have an account yet?";
+    document.getElementById('zFinalSwitch').textContent=reg?'Log in':'Create one';
+  }
+  function clearMsg(){document.getElementById('zFinalErr').style.display='none';document.getElementById('zFinalOk').style.display='none';}
+  function showMsg(id,text){var e=document.getElementById(id);e.textContent=text;e.style.display='block';}
+  window.showAuth=function(m){mode=m||'register';setMode();clearMsg();document.getElementById('zFinalAuth').classList.add('show');};
+  window.closeZevaniAuth=function(){document.getElementById('zFinalAuth').classList.remove('show');};
+  document.getElementById('zFinalClose').onclick=window.closeZevaniAuth;
+  document.getElementById('zFinalSwitch').onclick=function(){mode=mode==='register'?'login':'register';setMode();clearMsg();};
+  document.getElementById('zFinalForm').onsubmit=async function(e){
+    e.preventDefault();clearMsg();
+    var c=getClient();
+    if(!c){showMsg('zFinalErr','ZEVANI authentication could not load. Please refresh the page and try again.');return;}
+    var email=document.getElementById('zFinalEmail').value.trim();
+    var password=document.getElementById('zFinalPassword').value;
+    try{
+      if(mode==='register'){
+        if(password!==document.getElementById('zFinalConfirm').value){showMsg('zFinalErr','Your passwords do not match.');return;}
+        var name=document.getElementById('zFinalName').value.trim();
+        var r=await c.auth.signUp({email:email,password:password,options:{data:{name:name||email.split('@')[0]},emailRedirectTo:location.origin+location.pathname}});
+        if(r.error)throw r.error;
+        if(r.data.session){currentUser=r.data.user;loginSuccess();}
+        else showMsg('zFinalOk','Account created! Check your email and click the verification link, then come back and Log In.');
+      }else{
+        var l=await c.auth.signInWithPassword({email:email,password:password});
+        if(l.error)throw l.error;
+        currentUser=l.data.user;loginSuccess();
+      }
+    }catch(err){showMsg('zFinalErr',err.message||'Something went wrong.');}
+  };
+  function loginSuccess(){
+    localStorage.setItem('zevaniUserEmail',currentUser.email||'');
+    window.closeZevaniAuth();
+    var guest=document.getElementById('guestAuthButtons'),bar=document.getElementById('accountBar'),email=document.getElementById('accountEmail');
+    if(guest)guest.style.display='none';
+    if(bar)bar.style.display='flex';
+    if(email)email.textContent=currentUser.email||'';
+    if(typeof window.openZevaniDashboard==='function')window.openZevaniDashboard();
+    else if(typeof window.openDashboard==='function')window.openDashboard();
+  }
+  function wire(){
+    document.querySelectorAll('button').forEach(function(b){
+      var t=(b.textContent||'').trim();
+      if(t==='Log In')b.onclick=function(e){e.preventDefault();window.showAuth('login');};
+      if(t==='Create Account')b.onclick=function(e){e.preventDefault();window.showAuth('register');};
+      if(t==='Log Out')b.onclick=async function(e){e.preventDefault();var c=getClient();if(c)await c.auth.signOut();location.reload();};
+    });
+  }
+  wire();
+  window.addEventListener('load',wire);
+  setTimeout(wire,500);
+  var c=getClient();
+  if(c){c.auth.getSession().then(function(r){if(r.data&&r.data.session){currentUser=r.data.session.user;loginSuccess();}});}
+})();
+</script>
+'''
+              s=s.replace('</body>',code+'</body>')
+              p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit clean authentication
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --quiet || git commit -m "Install clean working authentication"
+          git push
