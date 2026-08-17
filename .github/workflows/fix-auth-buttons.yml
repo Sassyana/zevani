@@ -1,0 +1,34 @@
+name: Connect ZEVANI Authentication
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  connect-auth:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add working authentication
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          css='''<style id="zevani-auth-fix">\n#zevaniAuthModal{position:fixed;inset:0;background:rgba(16,26,45,.72);z-index:3000;display:none;align-items:center;justify-content:center;padding:20px}#zevaniAuthModal.show{display:flex}.z-auth-card{width:min(500px,100%);background:#fff;border-radius:28px;padding:38px;box-shadow:0 30px 90px rgba(0,0,0,.3)}.z-auth-card h2{font-family:Georgia,serif;font-weight:normal;font-size:40px;color:#101a2d;margin:10px 0}.z-auth-card p{color:#707887;line-height:1.55;margin-bottom:20px}.z-auth-input{width:100%;padding:15px;border:1px solid #e4dfd5;border-radius:14px;margin-bottom:12px;font-size:15px}.z-auth-error{display:none;background:#fff0ef;color:#a94442;padding:11px;border-radius:10px;margin-bottom:12px;font-size:13px}.z-auth-success{display:none;background:#edf8ef;color:#3d7d4a;padding:11px;border-radius:10px;margin-bottom:12px;font-size:13px}.z-auth-close{float:right;border:0;background:none;font-size:25px;color:#707887}.z-auth-switch{border:0;background:none;color:#9a7d4b;font-weight:bold}.z-auth-account{font-size:12px;color:#59616e}</style>'''
+          if 'id="zevani-auth-fix"' not in s:s=s.replace('</head>',css+'</head>',1)
+          modal='''<div id="zevaniAuthModal"><div class="z-auth-card"><button class="z-auth-close" onclick="closeZevaniAuth()">×</button><div class="label" id="zAuthLabel">CREATE YOUR ACCOUNT</div><h2 id="zAuthTitle">Join ZEVANI.</h2><p id="zAuthText">Create your account to save your companion and access your dashboard.</p><div id="zAuthError" class="z-auth-error"></div><div id="zAuthSuccess" class="z-auth-success"></div><form id="zAuthForm"><input id="zAuthName" class="z-auth-input" placeholder="Your name"><input id="zAuthEmail" class="z-auth-input" type="email" required placeholder="Email address"><input id="zAuthPassword" class="z-auth-input" type="password" required minlength="6" placeholder="Password (6+ characters)"><input id="zAuthConfirm" class="z-auth-input" type="password" required minlength="6" placeholder="Confirm password"><button id="zAuthSubmit" class="primary" type="submit" style="width:100%">Create Account</button></form><div style="text-align:center;margin-top:18px;font-size:13px"><span id="zAuthSwitchText">Already have an account?</span> <button id="zAuthSwitch" class="z-auth-switch" type="button">Log in</button></div></div></div>'''
+          if 'id="zevaniAuthModal"' not in s:s=s.replace('</body>',modal+'</body>',1)
+          js='''<script id="zevani-auth-fix-js">\n(function(){\nconst URL='https://hfdembdqzsedjbgemtdp.supabase.co',KEY='sb_publishable_NZAxQrtZ-sssoeIGVySf3w_1c0Io_xu';\nlet client=null,mode='register';\nfunction sup(){if(!client&&window.supabase)client=window.supabase.createClient(URL,KEY);return client}\nwindow.showAuth=function(m){mode=m||'register';const x=document.getElementById('zevaniAuthModal');if(!x)return;x.classList.add('show');setMode();clearMsg()};\nwindow.closeZevaniAuth=function(){const x=document.getElementById('zevaniAuthModal');if(x)x.classList.remove('show')};\nfunction setMode(){const r=mode==='register';document.getElementById('zAuthLabel').textContent=r?'CREATE YOUR ACCOUNT':'LOG IN';document.getElementById('zAuthTitle').textContent=r?'Join ZEVANI.':'Welcome back.';document.getElementById('zAuthText').textContent=r?'Create your account to save your companion and access your dashboard.':'Log in to continue to your ZEVANI dashboard.';document.getElementById('zAuthName').style.display=r?'block':'none';document.getElementById('zAuthConfirm').style.display=r?'block':'none';document.getElementById('zAuthSubmit').textContent=r?'Create Account':'Log In';document.getElementById('zAuthSwitchText').textContent=r?'Already have an account?':"Don't have an account yet?";document.getElementById('zAuthSwitch').textContent=r?'Log in':'Create one'}\nfunction clearMsg(){document.getElementById('zAuthError').style.display='none';document.getElementById('zAuthSuccess').style.display='none'}\nfunction msg(id,t){const x=document.getElementById(id);x.textContent=t;x.style.display='block'}\ndocument.getElementById('zAuthSwitch').onclick=()=>{mode=mode==='register'?'login':'register';setMode();clearMsg()};\ndocument.getElementById('zAuthForm').onsubmit=async function(e){e.preventDefault();clearMsg();const c=sup();if(!c){msg('zAuthError','Authentication is still loading. Please try again.');return}const email=document.getElementById('zAuthEmail').value.trim(),pw=document.getElementById('zAuthPassword').value;if(mode==='register'){if(pw!==document.getElementById('zAuthConfirm').value){msg('zAuthError','Your passwords do not match.');return}const name=document.getElementById('zAuthName').value.trim();const q=await c.auth.signUp({email,password:pw,options:{data:{name:name||email.split('@')[0]},emailRedirectTo:location.href}});if(q.error)msg('zAuthError',q.error.message);else msg('zAuthSuccess','Account created! Check your email and click the verification link. Then use Log In.')}else{const q=await c.auth.signInWithPassword({email,password:pw});if(q.error)msg('zAuthError',q.error.message);else{closeZevaniAuth();if(typeof openZevaniDashboard==='function')openZevaniDashboard();else if(typeof openDashboard==='function')openDashboard();else alert('Login successful. Dashboard connection is the next step.')}}};\nfunction wire(){document.querySelectorAll('button').forEach(b=>{const t=(b.textContent||'').trim();if(t==='Log In')b.onclick=()=>showAuth('login');if(t==='Create Account')b.onclick=()=>showAuth('register');if(t==='Log Out')b.onclick=async()=>{const c=sup();if(c)await c.auth.signOut();location.reload()}})}\nsetTimeout(wire,100);window.addEventListener('load',wire);\n})();\n</script>'''
+          if 'id="zevani-auth-fix-js"' not in s:s=s.replace('</body>',js+'</body>',1)
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit repair
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --quiet || git commit -m "Connect ZEVANI account buttons"
+          git push
