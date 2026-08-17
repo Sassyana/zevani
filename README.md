@@ -1,1 +1,3 @@
-# zevani
+# ZEVANI
+
+Personalized AI companionship.
