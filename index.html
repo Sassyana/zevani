@@ -834,7 +834,7 @@ input[type=range]{width:100%}
 
     </div>
 
-<button id="zevaniDashboardButton" class="small-button" style="margin-left:8px" onclick="openZevaniDashboard()">Dashboard</button>
+<button id="zevaniDashboardButton" class="small-button" style="margin-left:8px" type="button">Dashboard</button>
 </nav>
 
 
@@ -2864,6 +2864,25 @@ applyLanguage();
 <script>
 function openZevaniDashboard(){var d=document.getElementById('zevaniDashboard');if(!d)return;d.classList.add('active');window.scrollTo(0,0);try{var n=localStorage.getItem('zevaniCompanionName'),t=localStorage.getItem('zevaniCompanionType');if(n){document.getElementById('zdashName').textContent=n;document.getElementById('zdashAvatar').textContent=n.charAt(0).toUpperCase()}if(t)document.getElementById('zdashType').textContent=t}catch(e){}}
 function closeZevaniDashboard(){var d=document.getElementById('zevaniDashboard');if(d)d.classList.remove('active')}
+</script>
+<script data-zevani-dashboard-handler>
+(function(){
+  var b=document.getElementById("zevaniDashboardButton");
+  if(!b)return;
+  b.addEventListener("click",function(e){
+    e.preventDefault();
+    e.stopPropagation();
+    var d=document.getElementById("zevaniDashboard");
+    if(!d)return;
+    document.querySelectorAll("#homePage,#betaPage,#builderPage,#profilePage,#chatPage").forEach(function(x){x.classList.add("hidden")});
+    d.classList.add("active");
+    var n=localStorage.getItem("zevaniCompanionName")||"Alex";
+    var t=localStorage.getItem("zevaniCompanionType")||"Romantic";
+    var name=document.getElementById("zdashName"),type=document.getElementById("zdashType"),avatar=document.getElementById("zdashAvatar");
+    if(name)name.textContent=n;if(type)type.textContent=t;if(avatar)avatar.textContent=n.charAt(0).toUpperCase();
+    window.scrollTo(0,0);
+  });
+})();
 </script>
 </body>
 </html>
