@@ -792,6 +792,12 @@ input[type=range]{width:100%}
     .beta-card{padding:35px 25px}
 }
 </style>
+
+<style>
+#zevaniDashboard{display:none;min-height:100vh;padding:120px 7% 70px;background:var(--cream)}
+#zevaniDashboard.active{display:block}
+.zdash{max-width:1150px;margin:auto}.zdash-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:35px}.zdash-label{color:var(--gold);text-transform:uppercase;letter-spacing:3px;font-size:11px;font-weight:bold}.zdash h1,.zdash h2{font-family:Georgia,serif;font-weight:normal;color:var(--navy)}.zdash h1{font-size:clamp(40px,5vw,60px);margin:8px 0}.zdash h2{font-size:28px;margin-bottom:8px}.zdash-muted{color:var(--muted);line-height:1.6}.zdash-back{border:1px solid #c9c3b6;background:white;color:var(--navy);padding:11px 18px;border-radius:25px;font-weight:bold}.zdash-grid{display:grid;grid-template-columns:1.25fr .75fr;gap:22px}.zdash-card{background:white;border:1px solid var(--border);border-radius:25px;padding:28px;box-shadow:0 12px 35px rgba(16,26,45,.06)}.zdash-companion{display:flex;align-items:center;gap:20px;background:var(--cream);border-radius:20px;padding:22px;margin-top:20px}.zdash-avatar{width:82px;height:82px;border-radius:50%;background:linear-gradient(135deg,#c7a86b,#eadbb7);display:flex;align-items:center;justify-content:center;color:white;font-size:28px;font-weight:bold;flex:none}.zdash-type{color:var(--gold);text-transform:uppercase;letter-spacing:2px;font-size:10px;font-weight:bold}.zdash-name{font-family:Georgia,serif;color:var(--navy);font-size:25px;margin:5px 0}.zdash-actions{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:20px}.zdash-action{border:1px solid var(--border);background:white;border-radius:17px;padding:18px;text-align:left;color:var(--navy);font-weight:bold;min-height:75px}.zdash-action span{display:block;font-size:21px;margin-bottom:7px}.zdash-progress{height:9px;background:#e8e2d7;border-radius:20px;margin:18px 0 8px;overflow:hidden}.zdash-progress i{display:block;width:42%;height:100%;background:var(--gold)}.zdash-memory{padding:14px 0;border-bottom:1px solid #eee;color:#4e5662}.zdash-memory:last-child{border-bottom:0}.zdash-daily{margin-top:22px;background:var(--navy);color:white;border-radius:22px;padding:25px}.zdash-daily .zdash-label{color:var(--gold)}@media(max-width:800px){.zdash-grid{grid-template-columns:1fr}.zdash-actions{grid-template-columns:1fr}.zdash-top{align-items:flex-start}}
+</style>
 </head>
 
 <body>
@@ -828,6 +834,7 @@ input[type=range]{width:100%}
 
     </div>
 
+<button id="zevaniDashboardButton" class="small-button" style="margin-left:8px" onclick="openZevaniDashboard()">Dashboard</button>
 </nav>
 
 
@@ -2844,5 +2851,19 @@ applyLanguage();
 
 </script>
 
+
+<!-- ZEVANI DASHBOARD V1 -->
+<section id="zevaniDashboard">
+<div class="zdash">
+<div class="zdash-top"><div><div class="zdash-label">Your ZEVANI space</div><h1>Welcome back.</h1><p class="zdash-muted">Everything about your companion, all in one place.</p></div><button class="zdash-back" onclick="closeZevaniDashboard()">← Back</button></div>
+<div class="zdash-grid">
+<div class="zdash-card"><h2>Your companion</h2><p class="zdash-muted">Your personalized companion is ready to talk, remember and grow with you.</p><div class="zdash-companion"><div class="zdash-avatar" id="zdashAvatar">A</div><div><div class="zdash-type" id="zdashType">Romantic</div><div class="zdash-name" id="zdashName">Alex</div><p class="zdash-muted">Your connection is just getting started.</p></div></div><div class="zdash-actions"><button class="zdash-action" onclick="closeZevaniDashboard();if(typeof openChat==='function')openChat()"><span>💬</span>Continue chatting</button><button class="zdash-action" onclick="closeZevaniDashboard();if(typeof openBuilder==='function')openBuilder()"><span>✨</span>Manage companion</button><button class="zdash-action" onclick="closeZevaniDashboard();if(typeof openProfile==='function')openProfile()"><span>👤</span>My profile</button><button class="zdash-action" onclick="alert('Your companion will build memories here as you chat.')"><span>🧠</span>Memories</button></div></div>
+<div><div class="zdash-card"><h2>Relationship</h2><p class="zdash-muted">Your connection is growing.</p><div class="zdash-progress"><i></i></div><strong style="color:var(--navy)">Getting to know each other</strong><p class="zdash-muted" style="font-size:13px;margin-top:7px">Keep chatting to unlock more personalization.</p></div><div class="zdash-card" style="margin-top:22px"><h2>Recent memories</h2><div class="zdash-memory">💭 Your companion is waiting to learn what makes you smile.</div><div class="zdash-memory">💭 Your interests and preferences will appear here.</div><div class="zdash-memory">💭 Important moments can become lasting memories.</div></div></div>
+</div><div class="zdash-daily"><div class="zdash-label">Today's thought</div><div style="font-family:Georgia,serif;font-size:22px;line-height:1.45;margin-top:8px">“The best conversations are the ones where you can simply be yourself.”</div></div>
+</div></section>
+<script>
+function openZevaniDashboard(){var d=document.getElementById('zevaniDashboard');if(!d)return;d.classList.add('active');window.scrollTo(0,0);try{var n=localStorage.getItem('zevaniCompanionName'),t=localStorage.getItem('zevaniCompanionType');if(n){document.getElementById('zdashName').textContent=n;document.getElementById('zdashAvatar').textContent=n.charAt(0).toUpperCase()}if(t)document.getElementById('zdashType').textContent=t}catch(e){}}
+function closeZevaniDashboard(){var d=document.getElementById('zevaniDashboard');if(d)d.classList.remove('active')}
+</script>
 </body>
 </html>
