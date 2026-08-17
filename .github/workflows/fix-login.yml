@@ -1,0 +1,73 @@
+name: ZEVANI Login Fix
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch login inside iframe
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text()
+          marker="    frame.addEventListener('load',function(){"
+          if 'ZEVANI LOGIN BRIDGE V1' in s:
+              print('Already patched')
+              raise SystemExit
+          inject=r'''    /* ZEVANI LOGIN BRIDGE V1 */
+          function installLoginBridge(){
+            let w,d;
+            try{ w=frame.contentWindow; d=frame.contentDocument; }catch(e){ return; }
+            if(!w||!d||!d.body) return;
+            if(d.getElementById('zevaniLoginOverlay')) return;
+            const supabaseUrl="https://hfdembdqzsedjbgemtdp.supabase.co";
+            const supabaseKey="sb_publishable_NZAxQrtZ-sssoeIGVySf3w_1c0Io_xu";
+            let sb=null;
+            try{ if(w.supabase) sb=w.supabase.createClient(supabaseUrl,supabaseKey); }catch(e){}
+            if(!sb) return;
+            const overlay=d.createElement('div');
+            overlay.id='zevaniLoginOverlay';
+            overlay.style.cssText='position:fixed;inset:0;z-index:999999;background:#f7f4ed;display:none;align-items:center;justify-content:center;padding:30px;box-sizing:border-box;overflow:auto';
+            overlay.innerHTML=`<div style="width:100%;max-width:520px;background:white;border:1px solid #e4dfd5;border-radius:30px;padding:40px;box-shadow:0 25px 60px rgba(0,0,0,.10);box-sizing:border-box"><div style="color:#c7a86b;text-transform:uppercase;letter-spacing:3px;font-size:11px;font-weight:bold">LOG IN</div><h2 style="font-family:Georgia,serif;font-size:42px;font-weight:normal;color:#101a2d;margin:12px 0">Welcome back.</h2><p style="color:#707887;line-height:1.6">Log in to continue to your ZEVANI account.</p><div id="zevaniLoginError" style="display:none;background:#fff0ef;color:#a94442;padding:12px 14px;border-radius:12px;font-size:13px;margin:15px 0"></div><form id="zevaniLoginForm"><input id="zevaniLoginEmail" type="email" placeholder="Email address" autocomplete="email" required style="width:100%;padding:16px;border:1px solid #e4dfd5;border-radius:14px;font-size:15px;box-sizing:border-box;margin:0 0 12px"><input id="zevaniLoginPassword" type="password" placeholder="Password" autocomplete="current-password" required style="width:100%;padding:16px;border:1px solid #e4dfd5;border-radius:14px;font-size:15px;box-sizing:border-box;margin:0 0 16px"><button id="zevaniLoginSubmit" type="submit" style="width:100%;border:0;background:#101a2d;color:white;padding:16px;border-radius:30px;font-weight:bold;cursor:pointer">Log In</button></form><button id="zevaniLoginBack" type="button" style="width:100%;margin-top:12px;background:white;border:1px solid #c9c3b6;color:#101a2d;padding:14px;border-radius:30px;font-weight:bold;cursor:pointer">← Back</button></div>`;
+            d.body.appendChild(overlay);
+            function show(){ overlay.style.display='flex'; d.getElementById('zevaniLoginEmail').focus(); }
+            function hide(){ overlay.style.display='none'; }
+            w.showAuth=function(mode){ if(mode==='login'||mode===undefined) show(); else show(); };
+            const candidates=[...d.querySelectorAll('button,a')].filter(el=>{const t=(el.textContent||'').trim().toLowerCase();return t==='log in'||t==='login'||t.includes('log in');});
+            candidates.forEach(el=>{el.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();show();},true)});
+            d.getElementById('zevaniLoginBack').addEventListener('click',hide);
+            d.getElementById('zevaniLoginForm').addEventListener('submit',async function(e){
+              e.preventDefault();
+              const btn=d.getElementById('zevaniLoginSubmit'), err=d.getElementById('zevaniLoginError');
+              err.style.display='none'; btn.disabled=true; btn.textContent='Logging in…';
+              try{
+                const {data,error}=await sb.auth.signInWithPassword({email:d.getElementById('zevaniLoginEmail').value.trim(),password:d.getElementById('zevaniLoginPassword').value});
+                if(error) throw error;
+                hide();
+                if(data&&data.user){
+                  localStorage.setItem('zevaniUserEmail',data.user.email||'');
+                  localStorage.setItem('zevaniUserName',(data.user.user_metadata&&data.user.user_metadata.name)||((data.user.email||'').split('@')[0]));
+                }
+                if(typeof w.openDashboard==='function') w.openDashboard();
+              }catch(error){err.textContent=error.message||'Login failed. Please check your email and password.';err.style.display='block'}
+              finally{btn.disabled=false;btn.textContent='Log In'}
+            });
+          }
+'''
+          if marker not in s:
+              raise SystemExit('marker not found')
+          s=s.replace(marker, inject+'\n'+marker, 1)
+          s=s.replace("    installFixes();\n    setTimeout(installFixes,300);", "    installFixes();\n    installLoginBridge();\n    setTimeout(installFixes,300);\n    setTimeout(installLoginBridge,300);", 1)
+          p.write_text(s)
+          PY
+      - name: Commit patch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git commit -m 'Fix ZEVANI login flow' || exit 0
+          git push
