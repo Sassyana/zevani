@@ -1,0 +1,37 @@
+name: Remove Duplicate ZEVANI Auth
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  clean-auth:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Remove second conflicting auth script
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          marker="const URL='https://hfdembdqzsedjbgemtdp.supabase.co',KEY='sb_publishable_NZAxQrtZ-sssoeIGVySf3w_1c0Io_xu';"
+          if marker not in s:
+              raise SystemExit('Duplicate auth marker not found; refusing to modify file')
+          start=s.rfind('<script>',0,s.index(marker))
+          end=s.index('</script>',s.index(marker))+len('</script>')
+          if start < 0:
+              raise SystemExit('Could not locate script start')
+          s=s[:start]+s[end:]
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit cleaned authentication
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --quiet || git commit -m "Remove duplicate authentication controller"
+          git push
