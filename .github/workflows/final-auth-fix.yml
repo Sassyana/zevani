@@ -11,49 +11,54 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install clean authentication controller
+
+      - name: Sync logged-in navigation
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          p = Path('index.html')
+          p = Path('index-current.html')
           s = p.read_text(encoding='utf-8')
-          marker = '<!-- ZEVANI FINAL AUTH CONTROLLER -->'
+          marker = '<!-- ZEVANI NAV AUTH SYNC -->'
           if marker not in s:
-              code = r'''<!-- ZEVANI FINAL AUTH CONTROLLER -->
+              code = r'''<!-- ZEVANI NAV AUTH SYNC -->
 <script>
 (function(){
-  var mode='register', client=null;
-  function getClient(){
-    if(!client && window.supabase) client=window.supabase.createClient('https://hfdembdqzsedjbgemtdp.supabase.co','sb_publishable_NZAxQrtZ-sssoeIGVySf3w_1c0Io_xu');
-    return client;
+  function syncNav(){
+    var guest=document.getElementById('guestAuthButtons');
+    var account=document.getElementById('accountBar');
+    var email=document.getElementById('accountEmail');
+    var dash=document.getElementById('zevaniDashboardButton');
+    var userEmail=localStorage.getItem('zevaniUserEmail')||'';
+    var userName=localStorage.getItem('zevaniUserName')||'';
+    var loggedIn=!!userEmail;
+    if(guest) guest.style.display=loggedIn?'none':'flex';
+    if(account) account.style.display=loggedIn?'flex':'none';
+    if(email) email.textContent=userEmail||userName;
+    if(dash) dash.style.display=loggedIn?'inline-block':'none';
   }
-  function openAuth(m){
-    mode=m==='login'?'login':'register';
-    var modal=document.getElementById('zevaniAuthModal'); if(!modal)return;
-    modal.classList.add('show');
-    var title=document.getElementById('authTitle'),text=document.getElementById('authText'),submit=document.getElementById('authSubmitText');
-    var name=document.getElementById('authName'),confirm=document.getElementById('authPasswordConfirm');
-    if(title)title.textContent=mode==='login'?'Welcome back.':'Join ZEVANI.';
-    if(text)text.textContent=mode==='login'?'Log in to continue to your ZEVANI account.':'Create your private member account.';
-    if(submit)submit.textContent=mode==='login'?'Log In':'Create Account';
-    if(name)name.style.display=mode==='login'?'none':'block';
-    if(confirm)confirm.style.display=mode==='login'?'none':'block';
-    var err=document.getElementById('authError'),ok=document.getElementById('authSuccess');if(err)err.style.display='none';if(ok)ok.style.display='none';
-  }
-  window.showAuth=openAuth;
-  document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('button');if(!b)return;var t=(b.textContent||'').trim().replace(/\s+/g,' ');if(t==='Log In'){e.preventDefault();e.stopImmediatePropagation();openAuth('login')}else if(t==='Create Account'){e.preventDefault();e.stopImmediatePropagation();openAuth('register')}},true);
-  document.addEventListener('submit',async function(e){
-    var f=e.target;if(!f||f.id!=='authForm')return;e.preventDefault();e.stopImmediatePropagation();
-    var c=getClient();if(!c)return;
-    var email=document.getElementById('authEmail').value.trim(),password=document.getElementById('authPassword').value;
-    var err=document.getElementById('authError'),ok=document.getElementById('authSuccess');if(err)err.style.display='none';if(ok)ok.style.display='none';
-    try{var r;if(mode==='login'){r=await c.auth.signInWithPassword({email,password})}else{var confirm=document.getElementById('authPasswordConfirm').value;if(password!==confirm){if(err){err.textContent='Your passwords do not match.';err.style.display='block'}return}var name=document.getElementById('authName').value.trim();r=await c.auth.signUp({email,password,options:{data:{name:name||email.split('@')[0]},emailRedirectTo:location.href}})}if(r.error)throw r.error;if(mode==='register'&&!r.data.session){if(ok){ok.textContent='Account created! Check your email, verify it, then Log In.';ok.style.display='block'}return}var modal=document.getElementById('zevaniAuthModal');if(modal)modal.classList.remove('show');if(typeof window.openZevaniDashboard==='function')window.openZevaniDashboard()}catch(ex){if(err){err.textContent=ex.message||'Authentication failed.';err.style.display='block'}}
-  },true);
+  syncNav();
+  window.addEventListener('storage',syncNav);
+  setInterval(syncNav,500);
 })();
 </script>
 '''
               s=s.replace('</body>',code+'</body>')
               p.write_text(s,encoding='utf-8')
           PY
-      - name: Validate index
-        run: test -s index.html
+
+      - name: Validate files
+        run: |
+          test -s index.html
+          test -s index-current.html
+
+      - name: Commit navigation fix
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index-current.html
+          if git diff --cached --quiet; then
+            echo "No changes needed."
+          else
+            git commit -m "Fix logged-in navigation state"
+            git push
+          fi
