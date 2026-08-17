@@ -1,0 +1,44 @@
+name: Fix ZEVANI Auth UI
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  fix:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add account UI
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+
+          # Add the visible account controls to the existing navigation.
+          if 'id="guestAuthButtons"' not in s:
+              nav = '''\n<div id="guestAuthButtons" class="account-bar" style="display:flex"><button class="logout-button" type="button" onclick="showAuth('login')">Log In</button><button class="primary" type="button" style="padding:9px 15px" onclick="showAuth('register')">Create Account</button></div><div id="accountBar" class="account-bar" style="display:none"><span id="accountEmail" class="account-email"></span><button class="logout-button" type="button" onclick="logoutUser()">Log Out</button></div>\n'''
+              marker='</nav>'
+              if marker not in s:
+                  raise SystemExit('Navigation marker not found')
+              s=s.replace(marker,nav+marker,1)
+
+          # Add the actual Login/Create Account screen if it is missing.
+          if 'id="authPage"' not in s:
+              auth = '''\n<section id="authPage" class="auth-section hidden">\n<div class="auth-card">\n<div class="label" id="authLabel">CREATE YOUR ACCOUNT</div>\n<h2 id="authTitle">Join ZEVANI.</h2>\n<p id="authText">Create your private member account and save your ZEVANI companion.</p>\n<div id="authError" class="auth-message auth-error"></div>\n<div id="authSuccess" class="auth-message auth-success"></div>\n<form id="authForm" onsubmit="handleAuthSubmit(event)">\n<input id="authName" class="auth-input" type="text" autocomplete="name" placeholder="Your name">\n<input id="authEmail" class="auth-input" type="email" required autocomplete="email" placeholder="Email address">\n<input id="authPassword" class="auth-input" type="password" required minlength="6" autocomplete="new-password" placeholder="Password (at least 6 characters)">\n<input id="authPasswordConfirm" class="auth-input" type="password" required minlength="6" autocomplete="new-password" placeholder="Confirm password">\n<button id="authSubmit" class="primary" type="submit" style="width:100%"><span id="authSubmitText">Create Account</span></button>\n</form>\n<div class="auth-switch"><span id="authSwitchText">Already have an account?</span> <button type="button" onclick="toggleAuthMode()" id="authSwitchButton">Log in</button></div>\n<br><button class="back-button" type="button" onclick="showHome()" style="width:100%">Back to Home</button>\n</div></section>\n'''
+              marker='<!-- HOME -->'
+              if marker not in s:
+                  raise SystemExit('Home marker not found')
+              s=s.replace(marker,auth+'\n'+marker,1)
+
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit UI fix
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Restore visible login and create account UI" || true
+          git push
