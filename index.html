@@ -834,6 +834,8 @@ input[type=range]{width:100%}
     </div>
 
 <button id="zevaniDashboardButton" class="small-button" style="margin-left:8px" type="button">Dashboard</button>
+
+<div id="guestAuthButtons" class="account-bar" style="display:flex"><button class="logout-button" type="button" onclick="showAuth('login')">Log In</button><button class="primary" type="button" style="padding:9px 15px" onclick="showAuth('register')">Create Account</button></div><div id="accountBar" class="account-bar" style="display:none"><span id="accountEmail" class="account-email"></span><button class="logout-button" type="button" onclick="logoutUser()">Log Out</button></div>
 </nav>
 
 
