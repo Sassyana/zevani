@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ZEVANI Rebuild</title>
+<style>html,body{margin:0;min-height:100%;background:#f7f4ed}#loading{min-height:100vh;display:grid;place-items:center;font:16px Arial;color:#101a2d}</style>
+</head>
+<body>
+<div id="loading">Opening the ZEVANI rebuild…</div>
+<script>
+(async function(){
+  const source='https://raw.githubusercontent.com/Sassyana/zevani/zevani-rebuild-test/index-rebuild.html';
+  try{
+    const r=await fetch(source,{cache:'no-store'});
+    if(!r.ok) throw new Error('Unable to load rebuild');
+    const html=await r.text();
+    document.open();
+    document.write(html);
+    document.close();
+  }catch(e){
+    document.getElementById('loading').textContent='The ZEVANI rebuild could not be loaded. Please refresh.';
+    console.error(e);
+  }
+})();
+</script>
+</body>
+</html>
