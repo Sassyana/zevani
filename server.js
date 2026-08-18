@@ -23,7 +23,7 @@ async function sendApp(_req, res) {
     const html = await fs.readFile(path.join(__dirname, "index-current.html"), "utf8");
     const injected = html.replace(
       "</head>",
-      '<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="/auth-voice-bridge.js"></script></head>'
+      '<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><link rel="stylesheet" href="/companion-library.css"><script src="/auth-voice-bridge.js"></script><script defer src="/companion-library.js"></script></head>'
     );
     res.type("html").send(injected);
   } catch (error) {
@@ -38,6 +38,24 @@ app.get("/index-current.html", sendApp);
 app.get("/auth-voice-bridge.js", async (_req, res) => {
   try {
     const js = await fs.readFile(path.join(__dirname, "auth-voice-bridge.js"), "utf8");
+    res.type("application/javascript").send(js);
+  } catch {
+    res.status(404).send("Not found");
+  }
+});
+
+app.get("/companion-library.css", async (_req, res) => {
+  try {
+    const css = await fs.readFile(path.join(__dirname, "companion-library.css"), "utf8");
+    res.type("text/css").send(css);
+  } catch {
+    res.status(404).send("Not found");
+  }
+});
+
+app.get("/companion-library.js", async (_req, res) => {
+  try {
+    const js = await fs.readFile(path.join(__dirname, "companion-library.js"), "utf8");
     res.type("application/javascript").send(js);
   } catch {
     res.status(404).send("Not found");
