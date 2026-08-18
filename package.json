@@ -5,7 +5,7 @@
   "type": "module",
   "description": "ZEVANI personalized AI companionship app",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server-clean.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
