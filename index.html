@@ -8,7 +8,6 @@
 html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#f7f4ed}
 #zevaniApp{position:fixed;inset:0;width:100%;height:100%;border:0;display:block;background:#f7f4ed}
 </style>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 <iframe id="zevaniApp" src="index-current.html" title="ZEVANI" allow="clipboard-write"></iframe>
@@ -21,26 +20,13 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#f7f4ed}
       const doc=frame.contentDocument;
       if(!win||!doc||!doc.body)return;
 
-      /* Clean escaped characters left by the older generated file. */
-      const walker=doc.createTreeWalker(doc.body,NodeFilter.SHOW_TEXT);
-      const nodes=[];let n;
-      while(n=walker.nextNode())nodes.push(n);
-      nodes.forEach(x=>{
-        if(x.nodeValue)x.nodeValue=x.nodeValue.replace(/\\n/g,'').replace(/\\/g,'');
-      });
-
-      /*
-         ZEVANI invitation-code compatibility fix.
-         The original code was changed from ZEVNI2026 to ZEVANI2026.
-         Accept both so the original special code continues to work.
-      */
+      /* Keep the invitation-code compatibility fix. */
       win.checkBetaCode=function(){
         const input=doc.getElementById('betaCode');
         const error=doc.getElementById('betaError');
         const success=doc.getElementById('betaSuccess');
         const code=(input&&input.value||'').trim().toUpperCase();
         const valid=(code==='ZEVNI2026'||code==='ZEVANI2026');
-
         if(valid){
           if(error)error.style.display='none';
           if(success)success.style.display='block';
@@ -52,10 +38,87 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#f7f4ed}
           if(success)success.style.display='none';
         }
       };
+      win.handleBetaEnter=function(event){if(event.key==='Enter')win.checkBetaCode()};
 
-      win.handleBetaEnter=function(event){
-        if(event.key==='Enter')win.checkBetaCode();
-      };
+      /* Robust login wiring. The original page's login handler can be bypassed
+         after the page is switched from register mode to login mode. */
+      function wireLogin(){
+        const form=doc.getElementById('authForm');
+        const email=doc.getElementById('authEmail');
+        const password=doc.getElementById('authPassword');
+        const confirm=doc.getElementById('authPasswordConfirm');
+        const name=doc.getElementById('authName');
+        const button=doc.getElementById('authSubmit');
+        const error=doc.getElementById('authError');
+        const success=doc.getElementById('authSuccess');
+        const title=doc.getElementById('authTitle');
+        if(!form||!email||!password||!button)return;
+
+        const isLogin=title && /log\s*in/i.test(title.textContent||'');
+        if(!isLogin)return;
+
+        if(confirm){confirm.style.display='none';confirm.required=false}
+        if(name)name.style.display='none';
+        password.autocomplete='current-password';
+        button.disabled=false;
+
+        if(form.dataset.loginFixWired==='1')return;
+        form.dataset.loginFixWired='1';
+
+        form.addEventListener('submit',async function(event){
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          if(error){error.textContent='';error.style.display='none'}
+          if(success){success.textContent='';success.style.display='none'}
+
+          const userEmail=email.value.trim();
+          const userPassword=password.value;
+          if(!userEmail||!userPassword){
+            if(error){error.textContent='Please enter your email and password.';error.style.display='block'}
+            return;
+          }
+
+          button.disabled=true;
+          const oldText=button.textContent;
+          button.textContent='Logging in...';
+
+          try{
+            if(!win.supabase || typeof win.supabase.createClient!=='function'){
+              throw new Error('ZEVANI authentication is still loading. Please try again in a moment.');
+            }
+            if(!win.zevaniLoginClient){
+              win.zevaniLoginClient=win.supabase.createClient(
+                'https://hfdembdqzsedjbgemtdp.supabase.co',
+                'sb_publishable_NZAxQrtZ-sssoeIGVySf3w_1c0Io_xu'
+              );
+            }
+            const result=await win.zevaniLoginClient.auth.signInWithPassword({email:userEmail,password:userPassword});
+            if(result.error)throw result.error;
+
+            if(typeof win.onLoginSuccess==='function'){
+              win.onLoginSuccess(result.data.user);
+            }else if(typeof win.showDashboard==='function'){
+              win.showDashboard(result.data.user);
+            }else if(typeof win.showProfile==='function'){
+              win.showProfile();
+            }
+          }catch(err){
+            if(error){
+              error.textContent=err.message||'Login failed. Please check your email and password.';
+              error.style.display='block';
+            }
+          }finally{
+            button.disabled=false;
+            button.textContent=oldText||'Log In';
+          }
+        },true);
+      }
+
+      wireLogin();
+      const observer=new MutationObserver(wireLogin);
+      observer.observe(doc.body,{subtree:true,childList:true});
+      setTimeout(wireLogin,300);
+      setTimeout(wireLogin,1000);
     }catch(e){console.warn('ZEVANI wrapper:',e)}
   });
 })();
