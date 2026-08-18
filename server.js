@@ -8,6 +8,7 @@ import { fileURLToPath } from "node:url";
 const app = express();
 const PORT = process.env.PORT || 3000;
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const REBUILD_URL = "https://raw.githubusercontent.com/Sassyana/zevani/zevani-rebuild-test/index-rebuild.html";
 
 if (!process.env.OPENAI_API_KEY) console.warn("OPENAI_API_KEY is not set. AI chat will not work until configured.");
 const openai = process.env.OPENAI_API_KEY ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY }) : null;
@@ -18,9 +19,15 @@ async function sendApp(req, res) {
   try {
     const host = String(req.headers.host || "").split(":")[0].toLowerCase();
     const rebuild = host === "zevani-rebuild.vercel.app" || host.startsWith("zevani-rebuild-");
-    const file = rebuild ? "index-rebuild.html" : "index-current.html";
-    let html = await fs.readFile(path.join(__dirname, file), "utf8");
-    if (!rebuild) html = html.replace("</head>", '<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><link rel="stylesheet" href="/companion-library.css"><script src="/auth-voice-bridge.js"></script><script defer src="/companion-library.js"></script><script defer src="/companion-gender-pronouns.js"></script><script defer src="/companion-avatar-sync.js"></script></head>');
+    let html;
+    if (rebuild) {
+      const response = await fetch(REBUILD_URL, { cache: "no-store" });
+      if (!response.ok) throw new Error(`Rebuild fetch failed: ${response.status}`);
+      html = await response.text();
+    } else {
+      html = await fs.readFile(path.join(__dirname, "index-current.html"), "utf8");
+      html = html.replace("</head>", '<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><link rel="stylesheet" href="/companion-library.css"><script src="/auth-voice-bridge.js"></script><script defer src="/companion-library.js"></script><script defer src="/companion-gender-pronouns.js"></script><script defer src="/companion-avatar-sync.js"></script></head>');
+    }
     res.type("html").send(html);
   } catch (error) { console.error("ZEVANI frontend error:", error); res.status(500).send("ZEVANI could not load the frontend."); }
 }
