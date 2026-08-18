@@ -14,8 +14,17 @@ const openai = process.env.OPENAI_API_KEY ? new OpenAI({ apiKey: process.env.OPE
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json({ limit: "1mb" }));
 
+// Serve the ZEVANI web app from the production root.
+app.get("/", (_req, res) => {
+  res.sendFile(new URL("./index-current.html", import.meta.url).pathname);
+});
+
+app.get("/index-current.html", (_req, res) => {
+  res.sendFile(new URL("./index-current.html", import.meta.url).pathname);
+});
+
 app.get("/api/health", (_req, res) => {
-  res.json({ ok: true, service: "ZEVANI AI backend" });
+  res.json({ ok: true, service: "ZEVANI AI backend", aiConfigured: !!openai });
 });
 
 function clean(value, fallback = "") {
