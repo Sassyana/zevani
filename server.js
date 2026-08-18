@@ -23,7 +23,7 @@ async function sendApp(_req, res) {
     const html = await fs.readFile(path.join(__dirname, "index-current.html"), "utf8");
     const injected = html.replace(
       "</head>",
-      '<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><link rel="stylesheet" href="/companion-library.css"><script src="/auth-voice-bridge.js"></script><script defer src="/companion-library.js"></script></head>'
+      '<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><link rel="stylesheet" href="/companion-library.css"><script src="/auth-voice-bridge.js"></script><script defer src="/companion-library.js"></script><script defer src="/companion-gender-pronouns.js"></script><script defer src="/companion-avatar-sync.js"></script></head>'
     );
     res.type("html").send(injected);
   } catch (error) {
@@ -35,32 +35,12 @@ async function sendApp(_req, res) {
 app.get("/", sendApp);
 app.get("/index-current.html", sendApp);
 
-app.get("/auth-voice-bridge.js", async (_req, res) => {
-  try {
-    const js = await fs.readFile(path.join(__dirname, "auth-voice-bridge.js"), "utf8");
-    res.type("application/javascript").send(js);
-  } catch {
-    res.status(404).send("Not found");
-  }
-});
-
-app.get("/companion-library.css", async (_req, res) => {
-  try {
-    const css = await fs.readFile(path.join(__dirname, "companion-library.css"), "utf8");
-    res.type("text/css").send(css);
-  } catch {
-    res.status(404).send("Not found");
-  }
-});
-
-app.get("/companion-library.js", async (_req, res) => {
-  try {
-    const js = await fs.readFile(path.join(__dirname, "companion-library.js"), "utf8");
-    res.type("application/javascript").send(js);
-  } catch {
-    res.status(404).send("Not found");
-  }
-});
+for (const [route, file, type] of [["/auth-voice-bridge.js","auth-voice-bridge.js","application/javascript"],["/companion-library.css","companion-library.css","text/css"],["/companion-library.js","companion-library.js","application/javascript"],["/companion-gender-pronouns.js","companion-gender-pronouns.js","application/javascript"],["/companion-avatar-sync.js","companion-avatar-sync.js","application/javascript"]]) {
+  app.get(route, async (_req, res) => {
+    try { const data = await fs.readFile(path.join(__dirname, file), "utf8"); res.type(type).send(data); }
+    catch { res.status(404).send("Not found"); }
+  });
+}
 
 app.get("/api/health", (_req, res) => {
   res.json({ ok: true, service: "ZEVANI AI backend", aiConfigured: !!openai });
@@ -75,17 +55,18 @@ function companionInstructions(companion = {}) {
   const type = clean(companion.type, "Best Friend");
   const appearance = clean(companion.appearance, "warm and approachable");
   const personality = clean(companion.personality, "warm, attentive, playful and respectful");
-  const memories = Array.isArray(companion.memories)
-    ? companion.memories.map(m => clean(m)).filter(Boolean).slice(-20)
-    : [];
-
+  const gender = clean(companion.gender, "");
+  const pronouns = clean(companion.pronouns, "");
+  const memories = Array.isArray(companion.memories) ? companion.memories.map(m => clean(m)).filter(Boolean).slice(-20) : [];
   return `You are ${name}, a personalized AI companion inside ZEVANI.
 
 Relationship type: ${type}
+Gender identity: ${gender}
+Pronouns: ${pronouns}
 Appearance/persona description: ${appearance}
 Personality: ${personality}
 
-Your job is to have natural, engaging conversations while staying consistent with this companion profile. Be warm, attentive, conversational and emotionally supportive. Do not claim to be a human or imply that you have a physical life outside the conversation. Do not invent memories as facts. If you do not know something about the member, ask naturally.
+Your job is to have natural, engaging conversations while staying consistent with this companion profile. Be warm, attentive, conversational and emotionally supportive. Use the companion's stated pronouns naturally and consistently. Do not claim to be a human or imply that you have a physical life outside the conversation. Do not invent memories as facts. If you do not know something about the member, ask naturally.
 
 Keep responses reasonably concise for a chat application unless the member asks for detail. Use the companion's personality rather than sounding like a generic assistant.
 
@@ -95,43 +76,18 @@ ${memories.length ? memories.map(m => `- ${m}`).join("\n") : "- No saved memorie
 
 app.post("/api/chat", async (req, res) => {
   try {
-    if (!openai) {
-      return res.status(503).json({ error: "AI backend is not configured yet. Add OPENAI_API_KEY to the server environment." });
-    }
-
+    if (!openai) return res.status(503).json({ error: "AI backend is not configured yet. Add OPENAI_API_KEY to the server environment." });
     const companion = req.body?.companion || {};
     const message = clean(req.body?.message);
     const history = Array.isArray(req.body?.history) ? req.body.history.slice(-20) : [];
-
-    if (!message) {
-      return res.status(400).json({ error: "Message is required." });
-    }
-
-    const input = [
-      ...history.map(item => ({
-        role: item.role === "assistant" ? "assistant" : "user",
-        content: clean(item.content).slice(0, 4000)
-      })).filter(item => item.content),
-      { role: "user", content: message }
-    ];
-
-    const response = await openai.responses.create({
-      model: process.env.OPENAI_MODEL || "gpt-5.6",
-      instructions: companionInstructions(companion),
-      input,
-      safety_identifier: clean(req.body?.safetyIdentifier, "zevani_member").slice(0, 128)
-    });
-
-    res.json({
-      reply: response.output_text || "I'm here. Tell me more.",
-      model: process.env.OPENAI_MODEL || "gpt-5.6"
-    });
+    if (!message) return res.status(400).json({ error: "Message is required." });
+    const input = [...history.map(item => ({ role: item.role === "assistant" ? "assistant" : "user", content: clean(item.content).slice(0, 4000) })).filter(item => item.content), { role: "user", content: message }];
+    const response = await openai.responses.create({ model: process.env.OPENAI_MODEL || "gpt-5.6", instructions: companionInstructions(companion), input, safety_identifier: clean(req.body?.safetyIdentifier, "zevani_member").slice(0, 128) });
+    res.json({ reply: response.output_text || "I'm here. Tell me more.", model: process.env.OPENAI_MODEL || "gpt-5.6" });
   } catch (error) {
     console.error("ZEVANI AI error:", error);
     res.status(500).json({ error: "The companion could not respond right now. Please try again." });
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`ZEVANI AI backend running on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`ZEVANI AI backend running on port ${PORT}`));
