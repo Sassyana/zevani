@@ -1,9 +1,13 @@
 import express from "express";
 import cors from "cors";
 import OpenAI from "openai";
+import fs from "node:fs/promises";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 if (!process.env.OPENAI_API_KEY) {
   console.warn("OPENAI_API_KEY is not set. The server can start, but AI chat will not work until it is configured.");
@@ -14,13 +18,30 @@ const openai = process.env.OPENAI_API_KEY ? new OpenAI({ apiKey: process.env.OPE
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json({ limit: "1mb" }));
 
-// Serve the ZEVANI web app from the production root.
-app.get("/", (_req, res) => {
-  res.sendFile(new URL("./index-current.html", import.meta.url).pathname);
-});
+async function sendApp(_req, res) {
+  try {
+    const html = await fs.readFile(path.join(__dirname, "index-current.html"), "utf8");
+    const injected = html.replace(
+      "</head>",
+      '<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="/auth-voice-bridge.js"></script></head>'
+    );
+    res.type("html").send(injected);
+  } catch (error) {
+    console.error("ZEVANI frontend error:", error);
+    res.status(500).send("ZEVANI could not load the frontend.");
+  }
+}
 
-app.get("/index-current.html", (_req, res) => {
-  res.sendFile(new URL("./index-current.html", import.meta.url).pathname);
+app.get("/", sendApp);
+app.get("/index-current.html", sendApp);
+
+app.get("/auth-voice-bridge.js", async (_req, res) => {
+  try {
+    const js = await fs.readFile(path.join(__dirname, "auth-voice-bridge.js"), "utf8");
+    res.type("application/javascript").send(js);
+  } catch {
+    res.status(404).send("Not found");
+  }
 });
 
 app.get("/api/health", (_req, res) => {
