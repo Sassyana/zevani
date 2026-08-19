@@ -15,10 +15,7 @@ body{display:grid;place-items:center}
 <script>
 (function(){
   var rebuild=/^zevani-rebuild(?:-.*)?\.vercel\.app$/i.test(location.hostname);
-  if(!rebuild){
-    location.replace('index-current.html');
-    return;
-  }
+  if(!rebuild){location.replace('index-current.html');return;}
   var source='https://raw.githubusercontent.com/Sassyana/zevani/zevani-rebuild-test/index-rebuild.html';
   fetch(source,{cache:'no-store'})
     .then(function(r){if(!r.ok)throw new Error('Rebuild unavailable');return r.text();})
@@ -40,52 +37,19 @@ body{display:grid;place-items:center}
 .zevani-choice-close{margin-top:20px;border:0;background:none;color:#707887;cursor:pointer;font-weight:700}
 @media(max-width:600px){.zevani-choice-card{padding:25px}.zevani-choice-card h2{font-size:34px}.zevani-choice-grid{grid-template-columns:1fr}}
 </style>
-<div id="zevaniChoiceOverlay" aria-hidden="true">
-  <div class="zevani-choice-card" role="dialog" aria-modal="true" aria-labelledby="zevaniChoiceTitle">
-    <div class="kicker">YOUR COMPANION</div>
-    <h2>How would you like to begin?</h2>
-    <p>Choose someone from the ZEVANI Companion Library, or create a completely original companion designed around you.</p>
-    <div class="zevani-choice-grid">
-      <button class="zevani-choice" type="button" onclick="zevaniChooseExisting()">
-        <strong>Choose an Existing Companion</strong>
-        <span>Browse the ready-made companions, meet them, and choose the one who feels right.</span>
-        <span class="arrow">Browse the library →</span>
-      </button>
-      <button class="zevani-choice" type="button" onclick="zevaniCreateCustom()">
-        <strong>Create Your Own</strong>
-        <span>Build your companion's identity, personality, relationship style, backstory and portrait.</span>
-        <span class="arrow">Start creating →</span>
-      </button>
-    </div>
-    <button class="zevani-choice-close" type="button" onclick="zevaniCloseChoice()">Cancel</button>
-  </div>
-</div>`;
+<div id="zevaniChoiceOverlay" aria-hidden="true"><div class="zevani-choice-card" role="dialog" aria-modal="true"><div class="kicker">YOUR COMPANION</div><h2>How would you like to begin?</h2><p>Choose someone from the ZEVANI Companion Library, or create a completely original companion designed around you.</p><div class="zevani-choice-grid"><button class="zevani-choice" type="button" onclick="zevaniChooseExisting()"><strong>Choose an Existing Companion</strong><span>Browse the ready-made companions, meet them, and choose the one who feels right.</span><span class="arrow">Browse the library →</span></button><button class="zevani-choice" type="button" onclick="zevaniCreateCustom()"><strong>Create Your Own</strong><span>Build your companion's identity, personality, relationship style, backstory and portrait.</span><span class="arrow">Start creating →</span></button></div><button class="zevani-choice-close" type="button" onclick="zevaniCloseChoice()">Cancel</button></div></div>`;
       html=html.replace('</body>',extra+'</body>');
       document.open();document.write(html);document.close();
       setTimeout(function(){
         var original=window.showBuilder;
         if(typeof original!=='function')return;
         window._zevaniOriginalShowBuilder=original;
-        window.showBuilder=function(){
-          var o=document.getElementById('zevaniChoiceOverlay');
-          if(o){o.classList.add('open');o.setAttribute('aria-hidden','false');}
-        };
-        window.zevaniCloseChoice=function(){
-          var o=document.getElementById('zevaniChoiceOverlay');
-          if(o){o.classList.remove('open');o.setAttribute('aria-hidden','true');}
-        };
-        window.zevaniChooseExisting=function(){
-          window.zevaniCloseChoice();
-          if(typeof window.showHome==='function')window.showHome();
-          setTimeout(function(){
-            var lib=document.getElementById('library');
-            if(lib)lib.scrollIntoView({behavior:'smooth',block:'start'});
-          },50);
-        };
-        window.zevaniCreateCustom=function(){
-          window.zevaniCloseChoice();
-          if(typeof window._zevaniOriginalShowBuilder==='function')window._zevaniOriginalShowBuilder();
-        };
+        window.showBuilder=function(){var o=document.getElementById('zevaniChoiceOverlay');if(o){o.classList.add('open');o.setAttribute('aria-hidden','false');}};
+        window.zevaniCloseChoice=function(){var o=document.getElementById('zevaniChoiceOverlay');if(o){o.classList.remove('open');o.setAttribute('aria-hidden','true');}};
+        window.zevaniChooseExisting=function(){window.zevaniCloseChoice();if(typeof window.showHome==='function')window.showHome();setTimeout(function(){var lib=document.getElementById('library');if(lib)lib.scrollIntoView({behavior:'smooth',block:'start'});},50);};
+        window.zevaniCreateCustom=function(){window.zevaniCloseChoice();if(typeof window._zevaniOriginalShowBuilder==='function')window._zevaniOriginalShowBuilder();};
+        var companions=document.querySelector('.nav a[href="#library"]');
+        if(companions){companions.onclick=function(e){e.preventDefault();if(typeof window.showHome==='function')window.showHome();setTimeout(function(){var lib=document.getElementById('library');if(lib)lib.scrollIntoView({behavior:'smooth',block:'start'});},50);return false;};}
       },0);
     })
     .catch(function(err){document.getElementById('loading').textContent='The ZEVANI rebuild is temporarily unavailable. Please refresh.';console.error(err);});
