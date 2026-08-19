@@ -4,6 +4,13 @@ function clean(value, fallback = "") {
   return typeof value === "string" ? value.trim().slice(0, 4000) : fallback;
 }
 
+function cors(res) {
+  res.setHeader("Access-Control-Allow-Origin", "https://sassyana.github.io");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  res.setHeader("Vary", "Origin");
+}
+
 function instructions(companion = {}) {
   const name = clean(companion.name, "Alex");
   const type = clean(companion.type, "Best Friend");
@@ -12,6 +19,8 @@ function instructions(companion = {}) {
 }
 
 export default async function handler(req, res) {
+  cors(res);
+  if (req.method === "OPTIONS") return res.status(204).end();
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
   try {
     const key = process.env.OPENAI_API_KEY;
