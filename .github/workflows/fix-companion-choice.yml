@@ -1,0 +1,22 @@
+name: Fix companion choice navigation
+
+on:
+  push:
+    branches: [zevani-rebuild-test]
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch companion choice flow
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('index-rebuild.html')
+          s = p.read_text(encoding='utf-8')
+          old = '<a href="#" onclick="showBuilder
