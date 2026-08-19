@@ -1,6 +1,22 @@
-// ZEVANI navigation helper — loaded by pages that opt in.
-// Keeps normal browser Back behavior and provides a safe Home action.
+// ZEVANI navigation helper — safe routing for the existing app.
 (function(){
-  window.zevaniGoHome=function(){ window.location.href='/zevani/'; };
-  window.zevaniGoBack=function(){ if(history.length>1) history.back(); else window.location.href='/zevani/'; };
+  function page(id){
+    if(typeof window.show==='function') window.show(id,true);
+    else window.location.hash=id;
+  }
+  window.zevaniGoHome=function(){page('homePage');};
+  window.zevaniGoBuilder=function(){page('builderPage');};
+  window.zevaniGoBack=function(){
+    if(typeof window.goBack==='function') window.goBack();
+    else if(history.length>1) history.back();
+    else page('homePage');
+  };
+  window.zevaniMeetThem=function(companion){
+    if(!companion)return;
+    localStorage.setItem('zevaniPendingCompanion',JSON.stringify(companion));
+    if(typeof window.openChat==='function'){
+      const id='library-'+String(companion.name||'').toLowerCase().replace(/[^a-z0-9]+/g,'-');
+      window.openChat(id);
+    }else page('chatPage');
+  };
 })();
