@@ -4,11 +4,85 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>ZEVANI — Personalized AI Companionship</title>
-<meta http-equiv="refresh" content="0; url=index-rebuild.html">
-<script>window.location.replace('index-rebuild.html');</script>
+<style>html,body{margin:0;min-height:100%;background:#f7f4ed;color:#101a2d;font-family:Arial,sans-serif}#loader{min-height:100vh;display:grid;place-items:center;font-size:16px}</style>
 </head>
-<body style="font-family:Arial,sans-serif;background:#f7f4ed;color:#101a2d;display:flex;align-items:center;justify-content:center;min-height:100vh">
-<p>Opening the new ZEVANI Companion Library…</p>
-<noscript><a href="index-rebuild.html">Open ZEVANI Companion Library</a></noscript>
+<body>
+<div id="loader">Opening ZEVANI…</div>
+<script>
+(async function(){
+  try{
+    const response=await fetch('index-rebuild.html',{cache:'no-store'});
+    if(!response.ok) throw new Error('Could not load rebuild');
+    let html=await response.text();
+    const extra=`
+<style id="meet-choice-style">
+#meetChoiceOverlay{position:fixed;inset:0;z-index:9999;background:rgba(8,13,23,.78);display:none;align-items:center;justify-content:center;padding:22px;box-sizing:border-box}
+#meetChoiceOverlay.open{display:flex}
+.meet-choice-card{width:min(760px,100%);background:#fff;border-radius:30px;padding:38px;box-shadow:0 25px 90px rgba(0,0,0,.28);text-align:center;color:#202633}
+.meet-choice-kicker{color:#9a7d4b;text-transform:uppercase;letter-spacing:3px;font-size:11px;font-weight:800}
+.meet-choice-card h2{font:normal 42px Georgia,serif;color:#101a2d;margin:12px 0}
+.meet-choice-card p{color:#707887;line-height:1.65;max-width:580px;margin:0 auto 25px}
+.meet-choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;text-align:left}
+.meet-choice-btn{border:1px solid #e5dfd4;background:#fff;color:#202633;border-radius:22px;padding:24px;cursor:pointer;transition:.2s;text-align:left}
+.meet-choice-btn:hover{transform:translateY(-3px);box-shadow:0 15px 40px rgba(16,26,45,.12);border-color:#c7a86b}
+.meet-choice-btn strong{display:block;color:#101a2d;font-size:19px;margin-bottom:8px}
+.meet-choice-btn span{display:block;color:#707887;font-size:14px;line-height:1.5}
+.meet-choice-arrow{margin-top:16px!important;color:#9a7d4b!important;font-weight:800!important}
+.meet-choice-close{margin-top:20px;border:0;background:none;color:#707887;cursor:pointer;font-weight:700}
+@media(max-width:600px){.meet-choice-card{padding:25px}.meet-choice-card h2{font-size:34px}.meet-choice-grid{grid-template-columns:1fr}}
+</style>
+<div id="meetChoiceOverlay" aria-hidden="true">
+  <div class="meet-choice-card" role="dialog" aria-modal="true" aria-labelledby="meetChoiceTitle">
+    <div class="meet-choice-kicker">ZEVANI</div>
+    <h2 id="meetChoiceTitle">How would you like to begin?</h2>
+    <p>Choose someone from the ZEVANI Companion Library, or create someone uniquely yours.</p>
+    <div class="meet-choice-grid">
+      <button class="meet-choice-btn" type="button" onclick="chooseExistingCompanion()">
+        <strong>💕 Choose an Existing Companion</strong>
+        <span>Browse our ready-made companions, personalities and stories.</span>
+        <span class="meet-choice-arrow">Browse the library →</span>
+      </button>
+      <button class="meet-choice-btn" type="button" onclick="createYourOwnCompanion()">
+        <strong>✨ Create Your Own</strong>
+        <span>Build a companion uniquely around you, including their personality, identity and voice.</span>
+        <span class="meet-choice-arrow">Start creating →</span>
+      </button>
+    </div>
+    <button class="meet-choice-close" type="button" onclick="closeMeetChoice()">Cancel</button>
+  </div>
+</div>`;
+    html=html.replace('</body>',extra+'</body>');
+    document.open();document.write(html);document.close();
+    setTimeout(function(){
+      const overlay=document.getElementById('meetChoiceOverlay');
+      if(!overlay)return;
+      window.openMeetChoice=function(){overlay.classList.add('open');overlay.setAttribute('aria-hidden','false')};
+      window.closeMeetChoice=function(){overlay.classList.remove('open');overlay.setAttribute('aria-hidden','true')};
+      window.chooseExistingCompanion=function(){
+        closeMeetChoice();
+        if(typeof window.showHome==='function')window.showHome();
+        setTimeout(function(){const el=document.getElementById('library');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});},80);
+      };
+      window.createYourOwnCompanion=function(){
+        closeMeetChoice();
+        if(typeof window.showBuilder==='function')window.showBuilder();
+      };
+      document.querySelectorAll('button').forEach(function(btn){
+        if((btn.textContent||'').trim()==='Create Your Own'){
+          btn.textContent='Meet Your Companion →';
+          btn.onclick=function(e){e.preventDefault();openMeetChoice()};
+        }
+      });
+      const navCreate=document.querySelector('a[onclick*="showBuilder"]');
+      if(navCreate){navCreate.textContent='Meet Your Companion';navCreate.onclick=function(e){e.preventDefault();openMeetChoice()};}
+      const createBanners=document.querySelectorAll('.create-banner button');
+      createBanners.forEach(function(btn){btn.textContent='Meet Your Companion →';btn.onclick=function(){openMeetChoice()}});
+    },0);
+  }catch(err){
+    document.getElementById('loader').textContent='ZEVANI could not load. Please refresh.';
+    console.error(err);
+  }
+})();
+</script>
 </body>
 </html>
