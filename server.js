@@ -15,18 +15,19 @@ app.use(express.json({ limit: "1mb" }));
 
 async function html(file, res) { try { res.type("html").send(await read(file)); } catch (e) { console.error(e); res.status(404).send("ZEVANI page not found."); } }
 
-app.get("/", async (_req,res) => html("index.html",res));
-app.get("/index.html", async (_req,res) => html("index.html",res));
-app.get("/home.html", async (_req,res) => html("index.html",res));
+// MAIN ZEVANI HOME — this is the page containing the Companions section.
+app.get("/", async (_req,res) => html("index-current.html",res));
+app.get("/index.html", async (_req,res) => html("index-current.html",res));
+app.get("/home.html", async (_req,res) => html("index-current.html",res));
+app.get("/index-current.html", async (_req,res) => html("index-current.html",res));
 
-// Rebuild companion flow: these are explicit routes so Vercel never treats them as missing static files.
+// SEPARATE COMPANION LIBRARY FLOW — never replace or redirect this with the home page.
 app.get("/rebuild", async (_req,res) => html("rebuild/index.html",res));
 app.get("/rebuild/", async (_req,res) => html("rebuild/index.html",res));
 app.get("/rebuild/index.html", async (_req,res) => html("rebuild/index.html",res));
 app.get("/rebuild/library.html", async (_req,res) => html("rebuild/library.html",res));
 app.get("/rebuild/meet.html", async (_req,res) => html("rebuild/meet.html",res));
 
-// Companion assets used by the library.
 for (const [route,file,type] of [
   ["/companion-library.css","companion-library.css","text/css"],
   ["/companion-library.js","companion-library.js","application/javascript"],
@@ -39,7 +40,6 @@ for (const [route,file,type] of [
 app.get("/meet", async (_req,res) => html("meet/index.html",res));
 app.get("/meet/", async (_req,res) => html("meet/index.html",res));
 app.get("/meet.html", async (_req,res) => html("meet/index.html",res));
-
 app.get("/api/health", (_req,res) => res.json({ ok:true, service:"ZEVANI AI backend", aiConfigured:!!openai }));
 function clean(v,f=""){return typeof v==="string"?v.trim().slice(0,4000):f}
 function companionInstructions(c={}){return `You are ${clean(c.name,"Alex")}, a personalized AI companion inside ZEVANI.\nRelationship type: ${clean(c.type,"Best Friend")}\nGender identity: ${clean(c.gender)}\nPronouns: ${clean(c.pronouns)}\nPersonality: ${clean(c.personality,"warm, attentive, playful and respectful")}\nHave natural, engaging conversations consistent with this profile. Be warm and emotionally supportive. Do not claim to be human or invent memories.`}
