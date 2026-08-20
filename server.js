@@ -31,8 +31,36 @@ async function sendApp(req, res) {
     res.type("html").send(html);
   } catch (error) { console.error("ZEVANI frontend error:", error); res.status(500).send("ZEVANI could not load the frontend."); }
 }
+
 app.get("/", sendApp);
 app.get("/index-current.html", sendApp);
+
+// The companion UI is a real page, not an API route. Serve it explicitly so
+// Vercel's Node/Express deployment does not return NOT_FOUND for /meet/.
+async function sendMeet(req, res) {
+  try {
+    const html = await fs.readFile(path.join(__dirname, "meet", "index.html"), "utf8");
+    res.type("html").send(html);
+  } catch (error) {
+    console.error("ZEVANI meet page error:", error);
+    res.status(500).send("ZEVANI could not load the companion chat.");
+  }
+}
+app.get("/meet", sendMeet);
+app.get("/meet/", sendMeet);
+
+async function sendLibrary(req, res) {
+  try {
+    const html = await fs.readFile(path.join(__dirname, "rebuild", "index.html"), "utf8");
+    res.type("html").send(html);
+  } catch (error) {
+    console.error("ZEVANI library page error:", error);
+    res.status(500).send("ZEVANI could not load the companion library.");
+  }
+}
+app.get("/rebuild", sendLibrary);
+app.get("/rebuild/", sendLibrary);
+
 for (const [route, file, type] of [["/auth-voice-bridge.js","auth-voice-bridge.js","application/javascript"],["/companion-library.css","companion-library.css","text/css"],["/companion-library.js","companion-library.js","application/javascript"],["/companion-gender-pronouns.js","companion-gender-pronouns.js","application/javascript"],["/companion-avatar-sync.js","companion-avatar-sync.js","application/javascript"]]) app.get(route, async (_req,res)=>{try{const data=await fs.readFile(path.join(__dirname,file),"utf8");res.type(type).send(data)}catch{res.status(404).send("Not found")}});
 app.get("/api/health", (_req,res)=>res.json({ok:true,service:"ZEVANI AI backend",aiConfigured:!!openai}));
 function clean(value,fallback=""){return typeof value==="string"?value.trim().slice(0,4000):fallback}
