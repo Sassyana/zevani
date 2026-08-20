@@ -4,8 +4,10 @@ function clean(value, fallback = "") {
   return typeof value === "string" ? value.trim().slice(0, 4000) : fallback;
 }
 
-function cors(res) {
-  res.setHeader("Access-Control-Allow-Origin", "https://sassyana.github.io");
+function cors(req, res) {
+  const origin = req.headers.origin || "";
+  const allowed = origin === "https://sassyana.github.io" || origin === "https://zevani-rebuild.vercel.app" || origin.endsWith(".vercel.app");
+  if (allowed) res.setHeader("Access-Control-Allow-Origin", origin);
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
   res.setHeader("Vary", "Origin");
@@ -19,7 +21,7 @@ function instructions(companion = {}) {
 }
 
 export default async function handler(req, res) {
-  cors(res);
+  cors(req, res);
   if (req.method === "OPTIONS") return res.status(204).end();
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
   try {
